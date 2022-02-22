@@ -13,4 +13,3 @@ open class SecondBuilding(final override val address: String, final override val
     fun trendPriceInfo(year: UInt) = println("$textTrendPrice in $year \n")
 
 }
-

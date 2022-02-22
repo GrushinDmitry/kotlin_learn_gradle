@@ -18,4 +18,3 @@ fun main() {
     val agency = Agency(secondBuild, newBuild)
     agency.addInDataBase()
 }
-
