@@ -1,6 +1,6 @@
 package homework.lesson1
 
-class NewBuilding(address: String, price: UInt) : Property(address, price) {
+class NewBuildings(address: String, price: UInt) : Property(address, price) {
 
     private val risingPrice: UInt = 100000u
 
