@@ -1,21 +1,16 @@
 package homework.lesson1
 
-class Agency(private val second: SecondBuilding, private val new: NewBuilding) {
+class Agency(private val second: SecondBuildings, private val new: NewBuildings) {
 
-    var currentCodeBaseAgency = 1u
+    var currentIndexBaseAgency = 0u
         private set
 
-    private val textAddInBaseAgency = "added to base building"
+    private val textAddInBaseAgency = "added to base buildings"
 
-    fun baseAgencyInfo(): String {
-
-        val listBuilding = listOf(new, second)
-        var returnString = ""
-        listBuilding.forEach {
-            returnString += it.propertyInfo()
-            returnString += "$textAddInBaseAgency with index: $currentCodeBaseAgency \n"
-            currentCodeBaseAgency++
+    fun baseAgencyInfo() = listOf(new, second)
+           .joinToString("\n")
+        {
+            "${it.propertyInfo()} $textAddInBaseAgency with index: ${++currentIndexBaseAgency}"
         }
-        return returnString
-    }
+
 }

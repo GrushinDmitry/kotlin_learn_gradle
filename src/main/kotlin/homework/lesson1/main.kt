@@ -1,23 +1,23 @@
 package homework.lesson1
 
 fun main() {
-    val secondBuild = SecondBuilding("г. Рязань, ул. Ленина, 8, 34", 7000000u)
+    val secondBuildings = SecondBuildings("г. Рязань, ул. Ленина, 8, 34", 7000000u)
 
-    val newBuild = NewBuilding("г. Рязань, ул. Почтовая, 20, 100", 10000000u)
+    val newBuildings = NewBuildings("г. Рязань, ул. Почтовая, 20, 100", 10000000u)
 
-    val build = listOf(secondBuild, newBuild)
+    val buildings = listOf(secondBuildings, newBuildings)
 
-    val agency = Agency(secondBuild, newBuild)
+    val agency = Agency(secondBuildings, newBuildings)
 
-    build.forEach {
+    buildings.forEach {
         println(it.propertyInfo())
         println(it.discountInfo())
         println()
     }
 
-    println(secondBuild.trendPriceInfo(2022u))
+    println(secondBuildings.trendPriceInfo(2022u))
 
-    println(newBuild.textFinalPrice)
+    println(newBuildings.textFinalPrice)
 
     println(agency.baseAgencyInfo())
 }
