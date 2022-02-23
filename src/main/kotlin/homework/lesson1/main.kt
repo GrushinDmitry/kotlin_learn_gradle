@@ -7,14 +7,17 @@ fun main() {
 
     val build = listOf(secondBuild, newBuild)
 
+    val agency = Agency(secondBuild, newBuild)
+
     build.forEach {
-        it.propertyInfo()
-        it.discountInfo()
+        println(it.propertyInfo())
+        println(it.discountInfo())
         println()
     }
 
-    secondBuild.trendPriceInfo(2022u)
+    println(secondBuild.trendPriceInfo(2022u))
+
     println(newBuild.textFinalPrice)
-    val agency = Agency(secondBuild, newBuild)
-    agency.addInDataBase()
+
+    println(agency.baseAgencyInfo())
 }
