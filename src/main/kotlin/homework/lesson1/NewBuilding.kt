@@ -1,16 +1,13 @@
 package homework.lesson1
 
-open class NewBuilding(final override val address: String, final override val price: UInt) : Property() {
-
-    override fun discountInfo() {
-        println("no sale for new building")
-
-    }
-
+class NewBuilding(address: String, price: UInt) : Property(address, price) {
 
     private val risingPrice: UInt = 100000u
-    val textFinalPrice = "final price new building: ${calculateFinalPrice(price, risingPrice)} \n"
-    private fun calculateFinalPrice(price: UInt, risingPrice: UInt) = price + risingPrice
 
+    val textFinalPrice = "final price new building: ${calculateFinalPrice(price, risingPrice)} \n"
+
+    override fun discountInfo() = "no sale for new building"
+
+    private fun calculateFinalPrice(price: UInt, risingPrice: UInt) = price + risingPrice
 
 }

@@ -1,22 +1,10 @@
 package homework.lesson1
 
-abstract class Property {
+abstract class Property(val address: String, val price: UInt) {
 
+    abstract fun discountInfo(): String
 
-    abstract val address: String
+    open fun propertyInfo() = "address: $address \n" +
+            "price: $price \ninfo about property \n"
 
-    abstract val price: UInt
-
-    open fun propertyInfo() = "info about property \n ".print()
-
-    private fun String.print() {
-
-        println("address: $address")
-        println("price: $price")
-        println(this)
-
-
-    }
-
-    abstract fun discountInfo()
 }
