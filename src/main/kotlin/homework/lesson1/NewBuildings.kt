@@ -4,10 +4,18 @@ class NewBuildings(address: String, price: UInt) : Property(address, price) {
 
     private val risingPrice: UInt = 100000u
 
-    val textFinalPrice = "final price new building: ${calculateFinalPrice(price, risingPrice)} \n"
+    private val differenceMaxPriceRisingPrice: UInt = UInt.MAX_VALUE - risingPrice
 
-    override fun discountInfo() = "no sale for new building"
+    private val textFinalPrice = "Final price new building with rising:"
 
-    private fun calculateFinalPrice(price: UInt, risingPrice: UInt) = price + risingPrice
+    override fun discountInfo() = "No sale for new building"
+
+    fun finalPriceInfo() = if (differenceMaxPriceRisingPrice >= price) {
+        listOf("$textFinalPrice ${price + risingPrice}").joinToString("/n")
+    } else {
+        listOf("$textFinalPrice ${UInt.MAX_VALUE}",
+            "The final price exceeds the maximum price",
+            "The maximum possible price is set").joinToString("/n")
+    }
 
 }
