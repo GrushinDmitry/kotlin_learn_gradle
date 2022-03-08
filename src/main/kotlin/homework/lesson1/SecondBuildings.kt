@@ -12,14 +12,14 @@ class SecondBuildings(address: String, price: UInt) : Property(address, price) {
     override fun discountInfo() = if (price < priceSale) {
         listOf("$textSalePrice $priceSale",
             "The discount does not apply, because the price cannot be less than the discount",
-            "The minimum possible price is set").joinToString()
+            "The minimum possible price is set").joinToString("\n")
 
-    } else if ((price - priceSale) < priceSale) {
+    } else if ((price - priceSale) <= priceSale) {
         listOf("$textSalePrice $priceSale",
-            "Final price less than minimum price",
-            "The minimum possible price is set").joinToString()
+            "Final price is less than or equal to the minimum price",
+            "The minimum possible price is set").joinToString("\n")
     } else {
-        "$textSalePrice ${priceSale + price}"
+        "$textSalePrice ${price - priceSale}"
     }
 
 
