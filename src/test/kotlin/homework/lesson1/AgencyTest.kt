@@ -1,9 +1,6 @@
-package test
+package homework.lesson1
 
 
-import homework.lesson1.Agency
-import homework.lesson1.NewBuildings
-import homework.lesson1.SecondBuildings
 import io.mockk.clearAllMocks
 import io.mockk.spyk
 import io.mockk.verify
@@ -26,7 +23,7 @@ class AgencyTest {
 
     @Test
     fun baseAgencyInfo() {
-        val trueResult = listOf(
+        val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 1000000 ",
             "Info about property",
@@ -35,8 +32,12 @@ class AgencyTest {
             "Price: 750000 ",
             "Info about property",
             "Added to base buildings with index: 2").joinToString("\n")
-        assertEquals(trueResult, agency.baseAgencyInfo())
-        verify(exactly = 1) { agency.baseAgencyInfo() }
+        val currentIndexBase = agency.currentIndexBaseAgency
+
+
+        verify(exactly = 1) { agency.currentIndexBaseAgency }
+        assertEquals(expectedResult, agency.baseAgencyInfo())
+
     }
 }
 
