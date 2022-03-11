@@ -54,7 +54,7 @@ class SecondBuildingsTest {
         val expectedResult = listOf("Price with sale: $value50k",
             "Final price is less than or equal to the minimum price",
             "The minimum possible price is set").joinToString("\n")
-        val secondBuildings = spyk(SecondBuildings("г. Рязань, ул. Победы, 8, 34", priceSecondBuildings))
+        val secondBuildings = SecondBuildings("г. Рязань, ул. Победы, 8, 34", priceSecondBuildings)
 
 
         assertEquals(expectedResult, secondBuildings.discountInfo())
@@ -65,7 +65,7 @@ class SecondBuildingsTest {
         val expectedResult = listOf("Price with sale: $value50k",
             "The discount does not apply, because the price cannot be less than the discount",
             "The minimum possible price is set").joinToString("\n")
-        val secondBuildings = spyk(SecondBuildings("г. Рязань, ул. Первомайская, 8, 34", UInt.MIN_VALUE))
+        val secondBuildings = SecondBuildings("г. Рязань, ул. Первомайская, 8, 34", UInt.MIN_VALUE)
 
 
         assertEquals(expectedResult, secondBuildings.discountInfo())
@@ -75,7 +75,7 @@ class SecondBuildingsTest {
     @Test
     fun `вычисление цены со скидкой для вторички (цена максимальная - 4,294,967,295`() {
         val expectedResult = "Price with sale: $maxValueMinus50k"
-        val secondBuildings = spyk(SecondBuildings("г. Новгород, ул. Ленина, 100, 150", UInt.MAX_VALUE))
+        val secondBuildings = SecondBuildings("г. Новгород, ул. Ленина, 100, 150", UInt.MAX_VALUE)
 
 
         assertEquals(expectedResult, secondBuildings.discountInfo())
@@ -86,7 +86,7 @@ class SecondBuildingsTest {
         val expectedResult = listOf("Address: г. Москва, ул. Победы, 3, 1",
             "Price: 1000000 ",
             "Info about property").joinToString("\n")
-        val secondBuildings = spyk(SecondBuildings("г. Москва, ул. Победы, 3, 1", 1000000u))
+        val secondBuildings = SecondBuildings("г. Москва, ул. Победы, 3, 1", 1000000u)
 
 
         assertEquals(expectedResult, secondBuildings.propertyInfo())

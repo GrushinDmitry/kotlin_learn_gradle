@@ -30,7 +30,7 @@ class NewBuildingsTest {
         val expectedResult = listOf("Final price new building with rising: $value150k",
             "Final price is less than or equal to the minimum price",
             "The minimum possible price is set").joinToString("\n")
-        val newBuildings = spyk(NewBuildings("г. Рязань, ул. Лесная, 20, 100", priceNewBuildings))
+        val newBuildings = NewBuildings("г. Рязань, ул. Лесная, 20, 100", priceNewBuildings)
 
 
         assertEquals(expectedResult, newBuildings.finalPriceInfo())
@@ -41,7 +41,7 @@ class NewBuildingsTest {
     fun `вычисление цены для новостройки (финальная цена больше минимальной и меньше или равна максимальной)`(price: Long) {
         val priceNewBuildings = price.toUInt()
         val expectedResult = "Final price new building with rising: ${priceNewBuildings + 100000u}"
-        val newBuildings = spyk(NewBuildings("г. Рыбное, ул. Почтовая, 20, 100", priceNewBuildings))
+        val newBuildings = NewBuildings("г. Рыбное, ул. Почтовая, 20, 100", priceNewBuildings)
 
 
         assertEquals(expectedResult, newBuildings.finalPriceInfo())
@@ -55,7 +55,7 @@ class NewBuildingsTest {
         val expectedResult = listOf("Final price new building with rising: $maxValue",
             "The final price exceeds the maximum price",
             "The maximum possible price is set").joinToString("\n")
-        val newBuildings = spyk(NewBuildings("", priceNewBuildings))
+        val newBuildings = NewBuildings("", priceNewBuildings)
 
 
         assertEquals(expectedResult, newBuildings.finalPriceInfo())
@@ -68,7 +68,7 @@ class NewBuildingsTest {
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 1500000 ",
             "Info about property").joinToString("\n")
-        val newBuildings = spyk(NewBuildings("г. Рязань, ул. Почтовая, 20, 100", 1500000u))
+        val newBuildings = NewBuildings("г. Рязань, ул. Почтовая, 20, 100", 1500000u)
 
 
         assertEquals(expectedResult, newBuildings.propertyInfo())
