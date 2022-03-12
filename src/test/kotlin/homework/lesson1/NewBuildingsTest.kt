@@ -27,9 +27,11 @@ class NewBuildingsTest {
     @ValueSource(longs = [minValue, value50k])
     fun `вычисление цены для новостройки (финальная цена меньше или равна минимальной)`(price: Long) {
         val priceNewBuildings = price.toUInt()
-        val expectedResult = listOf("Final price new building with rising: $value150k",
+        val expectedResult = listOf(
+            "Final price new building with rising: $value150k",
             "Final price is less than or equal to the minimum price",
-            "The minimum possible price is set").joinToString("\n")
+            "The minimum possible price is set"
+        ).joinToString("\n")
         val newBuildings = NewBuildings("г. Рязань, ул. Лесная, 20, 100", priceNewBuildings)
 
 
@@ -52,9 +54,11 @@ class NewBuildingsTest {
     @ValueSource(longs = [maxValueMinus99999, maxValue])
     fun `вычисление цены со скидкой для вторички (финальная цена больше максимальной)`(price: Long) {
         val priceNewBuildings = price.toUInt()
-        val expectedResult = listOf("Final price new building with rising: $maxValue",
+        val expectedResult = listOf(
+            "Final price new building with rising: $maxValue",
             "The final price exceeds the maximum price",
-            "The maximum possible price is set").joinToString("\n")
+            "The maximum possible price is set"
+        ).joinToString("\n")
         val newBuildings = NewBuildings("", priceNewBuildings)
 
 
@@ -67,7 +71,8 @@ class NewBuildingsTest {
         val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 1500000 ",
-            "Info about property").joinToString("\n")
+            "Info about property"
+        ).joinToString("\n")
         val newBuildings = NewBuildings("г. Рязань, ул. Почтовая, 20, 100", 1500000u)
 
 

@@ -2,6 +2,7 @@ package homework.lesson1
 
 
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
@@ -14,7 +15,7 @@ class AgencyTest {
 
     val secondBuildings = spyk(SecondBuildings("г. Рязань, ул. Ленина, 8, 34", 750000u))
     val newBuildings = spyk(NewBuildings("г. Рязань, ул. Почтовая, 20, 100", 1000000u))
-    val agency = spyk(Agency(secondBuildings, newBuildings))
+
 
     @AfterEach
     fun afterEach() {
@@ -23,20 +24,22 @@ class AgencyTest {
 
     @Test
     fun baseAgencyInfo() {
+        every { newBuildings.price } returns 200000u
+        val agency = Agency(secondBuildings, newBuildings)
         val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
-            "Price: 1000000 ",
+            "Price: 200000 ",
             "Info about property",
             "Added to base buildings with index: 1",
             "Address: г. Рязань, ул. Ленина, 8, 34",
             "Price: 750000 ",
             "Info about property",
-            "Added to base buildings with index: 2").joinToString("\n")
-        val currentIndexBase = agency.currentIndexBaseAgency
+            "Added to base buildings with index: 2"
+        ).joinToString("\n")
 
 
-        verify(exactly = 1) { agency.currentIndexBaseAgency }
         assertEquals(expectedResult, agency.baseAgencyInfo())
+        verify(exactly = 1) { newBuildings.propertyInfo() }
 
     }
 }

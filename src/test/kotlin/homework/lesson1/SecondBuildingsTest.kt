@@ -51,9 +51,11 @@ class SecondBuildingsTest {
     @ValueSource(longs = [value50k, value70k, value100k])
     fun `вычисление цены со скидкой для вторички (финальная цена меньше или равна скидке)`(price: Long) {
         val priceSecondBuildings = price.toUInt()
-        val expectedResult = listOf("Price with sale: $value50k",
+        val expectedResult = listOf(
+            "Price with sale: $value50k",
             "Final price is less than or equal to the minimum price",
-            "The minimum possible price is set").joinToString("\n")
+            "The minimum possible price is set"
+        ).joinToString("\n")
         val secondBuildings = SecondBuildings("г. Рязань, ул. Победы, 8, 34", priceSecondBuildings)
 
 
@@ -62,9 +64,11 @@ class SecondBuildingsTest {
 
     @Test
     fun `вычисление цены со скидкой для вторички (цена равна 0)`() {
-        val expectedResult = listOf("Price with sale: $value50k",
+        val expectedResult = listOf(
+            "Price with sale: $value50k",
             "The discount does not apply, because the price cannot be less than the discount",
-            "The minimum possible price is set").joinToString("\n")
+            "The minimum possible price is set"
+        ).joinToString("\n")
         val secondBuildings = SecondBuildings("г. Рязань, ул. Первомайская, 8, 34", UInt.MIN_VALUE)
 
 
@@ -83,9 +87,11 @@ class SecondBuildingsTest {
 
     @Test
     fun propertyInfo() {
-        val expectedResult = listOf("Address: г. Москва, ул. Победы, 3, 1",
+        val expectedResult = listOf(
+            "Address: г. Москва, ул. Победы, 3, 1",
             "Price: 1000000 ",
-            "Info about property").joinToString("\n")
+            "Info about property"
+        ).joinToString("\n")
         val secondBuildings = SecondBuildings("г. Москва, ул. Победы, 3, 1", 1000000u)
 
 
