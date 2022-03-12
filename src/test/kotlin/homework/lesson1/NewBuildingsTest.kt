@@ -22,10 +22,10 @@ class NewBuildingsTest {
 
     @Test
     fun discountInfo() {
-        val expectedResult = "No sale for new building"
         val actualResult = newBuildings.discountInfo()
 
 
+        val expectedResult = "No sale for new building"
         assertEquals(expectedResult, actualResult)
     }
 
@@ -33,57 +33,66 @@ class NewBuildingsTest {
     @ParameterizedTest
     @ValueSource(longs = [minValue, value50k])
     fun `вычисление цены для новостройки (финальная цена меньше или равна минимальной)`(price: Long) {
-        val priceNewBuildings = price.toUInt()
+        every { newBuildings.price } returns price.toUInt()
+
+
+        val actualResult = newBuildings.finalPriceInfo()
+
+
         val expectedResult = listOf(
             "Final price new building with rising: $value150k",
             "Final price is less than or equal to the minimum price",
             "The minimum possible price is set"
         ).joinToString("\n")
-        every { newBuildings.price } returns priceNewBuildings
-
-
-        assertEquals(expectedResult, newBuildings.finalPriceInfo())
+        assertEquals(expectedResult, actualResult)
     }
 
     @ParameterizedTest
     @ValueSource(longs = [value50001, maxValueMinus100k])
     fun `вычисление цены для новостройки (финальная цена больше минимальной и меньше или равна максимальной)`(price: Long) {
-        val priceNewBuildings = price.toUInt()
-        val expectedResult = "Final price new building with rising: ${priceNewBuildings + 100000u}"
-        every { newBuildings.price } returns priceNewBuildings
+        every { newBuildings.price } returns price.toUInt()
 
 
-        assertEquals(expectedResult, newBuildings.finalPriceInfo())
+        val actualResult = newBuildings.finalPriceInfo()
+
+
+        val expectedResult = "Final price new building with rising: ${price.toUInt() + 100000u}"
+        assertEquals(expectedResult, actualResult)
     }
 
 
     @ParameterizedTest
     @ValueSource(longs = [maxValueMinus99999, maxValue])
     fun `вычисление цены со скидкой для вторички (финальная цена больше максимальной)`(price: Long) {
-        val priceNewBuildings = price.toUInt()
+        every { newBuildings.price } returns price.toUInt()
+
+
+        val actualResult = newBuildings.finalPriceInfo()
+
+
         val expectedResult = listOf(
             "Final price new building with rising: $maxValue",
             "The final price exceeds the maximum price",
             "The maximum possible price is set"
         ).joinToString("\n")
-        every { newBuildings.price } returns priceNewBuildings
-
-
-        assertEquals(expectedResult, newBuildings.finalPriceInfo())
+        assertEquals(expectedResult, actualResult)
     }
 
 
     @Test
     fun propertyInfo() {
+        every { newBuildings.price } returns 1500000u
+
+
+        val actualResult = newBuildings.propertyInfo()
+
+
         val expectedResult = listOf(
             "Address: г. Липецк, ул. Почтовая, 20, 100",
             "Price: 1500000 ",
             "Info about property"
         ).joinToString("\n")
-        every { newBuildings.price } returns 1500000u
-
-
-        assertEquals(expectedResult, newBuildings.propertyInfo())
+        assertEquals(expectedResult, actualResult)
 
     }
 

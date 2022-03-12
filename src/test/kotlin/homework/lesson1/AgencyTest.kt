@@ -25,7 +25,12 @@ class AgencyTest {
     @Test
     fun `изменение результата метода класса новостроек`() {
         every { newBuildings.propertyInfo() } returns ""
+
+
         val agency = Agency(secondBuildings, newBuildings)
+        val actualResult = agency.baseAgencyInfo()
+
+
         val expectedResult = listOf(
             "",
             "Added to base buildings with index: 1",
@@ -34,9 +39,7 @@ class AgencyTest {
             "Info about property",
             "Added to base buildings with index: 2"
         ).joinToString("\n")
-
-
-        assertEquals(expectedResult, agency.baseAgencyInfo())
+        assertEquals(expectedResult, actualResult)
         verify(exactly = 1) { newBuildings.propertyInfo() }
 
     }
@@ -44,7 +47,12 @@ class AgencyTest {
     @Test
     fun `изменение цены новостройки`() {
         every { newBuildings.price } returns 200000u
+
+
         val agency = Agency(secondBuildings, newBuildings)
+        val actualResult = agency.baseAgencyInfo()
+
+
         val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 200000 ",
@@ -55,9 +63,7 @@ class AgencyTest {
             "Info about property",
             "Added to base buildings with index: 2"
         ).joinToString("\n")
-
-
-        assertEquals(expectedResult, agency.baseAgencyInfo())
+        assertEquals(expectedResult, actualResult)
         verify(exactly = 1) { newBuildings.propertyInfo() }
 
     }
@@ -65,7 +71,12 @@ class AgencyTest {
     @Test
     fun `изменение результата метода класса вторичек`() {
         every { secondBuildings.propertyInfo() } returns "1"
+
+
         val agency = Agency(secondBuildings, newBuildings)
+        val actualResult = agency.baseAgencyInfo()
+
+
         val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 1000000 ",
@@ -74,9 +85,7 @@ class AgencyTest {
             "1",
             "Added to base buildings with index: 2"
         ).joinToString("\n")
-
-
-        assertEquals(expectedResult, agency.baseAgencyInfo())
+        assertEquals(expectedResult, actualResult)
         verify(exactly = 1) { secondBuildings.propertyInfo() }
 
     }
@@ -84,7 +93,12 @@ class AgencyTest {
     @Test
     fun `изменение цены вторички`() {
         every { secondBuildings.price } returns 500000u
+
+
         val agency = Agency(secondBuildings, newBuildings)
+        val actualResult = agency.baseAgencyInfo()
+
+
         val expectedResult = listOf(
             "Address: г. Рязань, ул. Почтовая, 20, 100",
             "Price: 1000000 ",
@@ -95,9 +109,7 @@ class AgencyTest {
             "Info about property",
             "Added to base buildings with index: 2"
         ).joinToString("\n")
-
-
-        assertEquals(expectedResult, agency.baseAgencyInfo())
+        assertEquals(expectedResult, actualResult)
         verify(exactly = 1) { secondBuildings.propertyInfo() }
 
     }
