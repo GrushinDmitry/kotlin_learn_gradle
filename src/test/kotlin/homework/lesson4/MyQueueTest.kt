@@ -74,26 +74,6 @@ internal class MyQueueTest {
 
         val expectedRemove = valueRandom.plusElement(null)
         assertEquals(expectedRemove, actualRemove)
-
-    /*    val iteration = 1
-        var actualPoll = listOf<UInt?>()
-        var expectedPoll = listOf<UInt?>()
-        val uintQueue = MyQueue<UInt>(iteration)
-
-        for (i in 1..iteration) {
-            val value = Random.nextUInt(100000u)
-            uintQueue.offer(value)
-            if (i <= iteration) {
-                expectedPoll = expectedPoll.plusElement(value)
-            }
-        }
-        for (i in 1..iteration) {
-            actualPoll = actualPoll.plusElement(uintQueue.poll())
-        }
-        actualPoll = actualPoll.plusElement(uintQueue.poll())
-
-        expectedPoll = expectedPoll.plusElement(null)
-        assertEquals(expectedPoll, actualPoll)*/
     }
 
     @Test
