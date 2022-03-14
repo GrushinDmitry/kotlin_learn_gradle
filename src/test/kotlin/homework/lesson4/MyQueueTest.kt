@@ -33,15 +33,10 @@ internal class MyQueueTest {
     @Test
     fun offerPeekElement() {
         val listObj = listOf("2", "1", "9")
-        var actualOffer = listOf<Boolean>()
-        var actualPeek = listOf<String?>()
-        var actualElement = listOf<String>()
 
-        listObj.forEach {
-            actualOffer = actualOffer.plusElement(stringQueue.offer(it))
-            actualPeek = actualPeek.plusElement(stringQueue.peek())
-            actualElement = actualElement.plusElement(stringQueue.element())
-        }
+        val actualOffer = listObj.map(stringQueue::offer)
+        val actualPeek = listObj.map { stringQueue.peek() }
+        val actualElement = listObj.map { stringQueue.element() }
 
         val expectedOffer = listOf(true, true, false)
         val expectedPeekElement = listOf("2", "2", "2")
@@ -54,29 +49,33 @@ internal class MyQueueTest {
     @Test
     fun offerRemove() {
         val iteration = 1000
-        var actualRemove = listOf<UInt?>()
-        var expectedRemove = listOf<UInt?>()
         val uintQueue = MyQueue<UInt>(iteration)
+        val listObj = listOf(1..iteration)
 
-        for (i in 1..iteration) {
-            val value = Random.nextUInt(100000u)
-            uintQueue.offer(value)
-            if (i <= iteration) {
-                expectedRemove = expectedRemove.plusElement(value)
-            }
-        }
-        for (i in 1..iteration) {
-            actualRemove = actualRemove.plusElement(uintQueue.poll())
-        }
-        actualRemove = actualRemove.plusElement(uintQueue.poll())
+        val valueRandom = listObj.map { Random.nextUInt(100000u) }
+        valueRandom.map(uintQueue::offer)
+        val actualRemove = listObj.map { uintQueue.remove() }
 
-        expectedRemove = expectedRemove.plusElement(null)
+        val expectedRemove = valueRandom
         assertEquals(expectedRemove, actualRemove)
+        assertThrows<NoSuchElementException>(uintQueue::remove)
     }
 
     @Test
     fun offerPoll() {
-        val iteration = 1
+        val iteration = 10000
+        val stringQueue = MyQueue<String>(iteration)
+        val listObj = listOf(1..iteration)
+
+        val valueRandom = listObj.map { Random.nextUInt(1000000u).toString() }
+        valueRandom.map(stringQueue::offer)
+        val actualList = listObj.map { stringQueue.poll() }
+        val actualRemove = actualList.plusElement(stringQueue.poll())
+
+        val expectedRemove = valueRandom.plusElement(null)
+        assertEquals(expectedRemove, actualRemove)
+
+    /*    val iteration = 1
         var actualPoll = listOf<UInt?>()
         var expectedPoll = listOf<UInt?>()
         val uintQueue = MyQueue<UInt>(iteration)
@@ -94,7 +93,7 @@ internal class MyQueueTest {
         actualPoll = actualPoll.plusElement(uintQueue.poll())
 
         expectedPoll = expectedPoll.plusElement(null)
-        assertEquals(expectedPoll, actualPoll)
+        assertEquals(expectedPoll, actualPoll)*/
     }
 
     @Test
@@ -109,3 +108,5 @@ internal class MyQueueTest {
         assertEquals(expected, actual)
     }
 }
+
+
