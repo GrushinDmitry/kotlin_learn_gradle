@@ -9,47 +9,34 @@ class MyQueue<E : Any>(private val size: Int = 16) {
 
     //Возвращает элемент из головы очереди. Элемент не удаляется.
     // Если очередь пуста, инициируется исключение NoSuchElementException.
-    fun element(): E {
-        if (isEmpty()) {
-            throw NoSuchElementException()
-        }
-        return queueArray[head] as E
-    }
+    fun element(): E = peek() ?: throw NoSuchElementException()
+
 
     //Пытается добавить item в очередь.
     //Возвращает true, если item добавлен, и false в противном случае.
     fun offer(item: E): Boolean =
         when {
             isFull() -> false
-            tail == size -> {
-                tail = 0
-                offerInternal(item)
-            }
-            else -> {
-                offerInternal(item)
-            }
+            else -> offerInternal(item)
         }
 
 
-    private fun offerInternal(itemLegal: E): Boolean {
-        queueArray[tail++] = itemLegal
+    private fun offerInternal(item: E): Boolean {
+        if (tail == size) tail = 0
+        queueArray[tail++] = item
         items++
         return true
     }
 
     //Удаляет элемент из головы очереди, возвращая его.
     //Инициирует исключение NoSuchElementException, если очередь пуста.
-    fun remove(): E =
-        when {
-            isEmpty() -> throw NoSuchElementException()
-            else -> poll()!!
-        }
+    fun remove(): E = poll() ?: throw NoSuchElementException()
 
 
     private fun removeInternal(): E {
-        val element = queueArray[head++] as E
+        if (head == size) head = 0
         items--
-        return element
+        return queueArray[head++] as E
     }
 
     //Возвращает элемент из головы очереди.
@@ -62,10 +49,6 @@ class MyQueue<E : Any>(private val size: Int = 16) {
     fun poll(): E? =
         when {
             isEmpty() -> null
-            head == size -> {
-                head = 0
-                removeInternal()
-            }
             else -> removeInternal()
         }
 
