@@ -23,19 +23,18 @@ class MyQueue<E : Any>(private val size: Int = 16) {
             isFull() -> false
             tail == size -> {
                 tail = 0
-                legalOffer(item)
-                true
+                offerInternal(item)
             }
             else -> {
-                legalOffer(item)
-                true
+                offerInternal(item)
             }
         }
 
 
-    private fun legalOffer(itemLegal: E) {
+    private fun offerInternal(itemLegal: E): Boolean {
         queueArray[tail++] = itemLegal
         items++
+        return true
     }
 
     //Удаляет элемент из головы очереди, возвращая его.
@@ -43,27 +42,19 @@ class MyQueue<E : Any>(private val size: Int = 16) {
     fun remove(): E =
         when {
             isEmpty() -> throw NoSuchElementException()
-            head == size -> {
-                head = 0
-                removeReturn()
-            }
-            else -> removeReturn()
+            else -> poll()!!
         }
 
 
-    private fun removeReturn(): E {
-        val temp = queueArray[head++] as E
+    private fun removeInternal(): E {
+        val element = queueArray[head++] as E
         items--
-        return temp
+        return element
     }
 
     //Возвращает элемент из головы очереди.
     //Возвращает null, если очередь пуста. Элемент не удаляется.
-    fun peek(): E? = if (isEmpty()) {
-        null
-    } else {
-        queueArray[head] as E
-    }
+    fun peek(): E? = if (isEmpty()) null else queueArray[head] as E
 
 
     //Возвращает элемент из головы очереди и удаляет его.
@@ -73,19 +64,16 @@ class MyQueue<E : Any>(private val size: Int = 16) {
             isEmpty() -> null
             head == size -> {
                 head = 0
-                removeReturn()
+                removeInternal()
             }
-            else -> removeReturn()
+            else -> removeInternal()
         }
 
 
-    private fun isEmpty(): Boolean {
-        return items == 0
-    }
+    private fun isEmpty(): Boolean = items == 0
 
-    private fun isFull(): Boolean {
-        return items == size
-    }
+
+    private fun isFull(): Boolean = items == size
 
 
 }
