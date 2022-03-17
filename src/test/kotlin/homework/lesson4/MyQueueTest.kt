@@ -50,11 +50,11 @@ internal class MyQueueTest {
     fun offerRemove() {
         val iteration = 1000
         val uintQueue = MyQueue<UInt>(iteration)
-        val listObj = listOf(1..iteration)
+        val range = 1..iteration
 
-        val valueRandom = listObj.map { Random.nextUInt(100000u) }
+        val valueRandom = range.map { Random.nextUInt(100000u) }
         valueRandom.map(uintQueue::offer)
-        val actualRemove = listObj.map { uintQueue.remove() }
+        val actualRemove = range.map { uintQueue.remove() }
 
         val expectedRemove = valueRandom
         assertEquals(expectedRemove, actualRemove)
@@ -65,11 +65,11 @@ internal class MyQueueTest {
     fun offerPoll() {
         val iteration = 10000
         val stringQueue = MyQueue<String>(iteration)
-        val listObj = listOf(1..iteration)
+        val range = 1..iteration
 
-        val valueRandom = listObj.map { Random.nextUInt(1000000u).toString() }
+        val valueRandom = range.map { Random.nextUInt(1000000u).toString() }
         valueRandom.map(stringQueue::offer)
-        val actualList = listObj.map { stringQueue.poll() }
+        val actualList = range.map { stringQueue.poll() }
         val actualRemove = actualList.plusElement(stringQueue.poll())
 
         val expectedRemove = valueRandom.plusElement(null)
@@ -77,7 +77,7 @@ internal class MyQueueTest {
     }
 
     @Test
-    fun cicleQueue() {
+    fun cycleQueue() {
         uintQueue.offer(5u)
         uintQueue.offer(10u)
         uintQueue.poll()

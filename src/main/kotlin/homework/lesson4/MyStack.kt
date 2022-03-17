@@ -5,7 +5,7 @@ class MyStack<E : Any> {
     private var stackArray = arrayOfNulls<Any>(initSize)
     val size: Int
         get() = stackArray.size
-    var head = -1
+    private var head = -1
 
 
     fun push(item: E) {
