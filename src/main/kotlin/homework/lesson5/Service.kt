@@ -1,7 +1,7 @@
 package homework.lesson5
 
 
-class Service(private val rate: UInt, private val listBuildings: List<Buildings>) {
+class Service(private val rate: Int, private val listBuildings: List<Buildings>) {
     /*Метод, который преобразует поля нашего класса в описание на английском,
     а цену преобразует в валюту (курс, можно создать константой) и возвращает
      новую коллекцию отсортированную по возрастанию цены.*/
