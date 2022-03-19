@@ -6,11 +6,11 @@ internal class ServiceTest {
     val rate = 100
     val range = 0..4
     val listAddress = listOf(
-        "Тульская область, город Ступино, въезд Космонавтов, 97",
-        "Ленинградская область, город Дорохово, наб. Гагарина, 18",
-        "Челябинская область, город Истра, бульвар Гоголя, 96",
-        "Архангельская область, город Шатура, пер. Чехова, 53",
-        "Смоленская область, город Зарайск, пер. Ленина, 64"
+        "Tula region, Stupino city, Cosmonauts entrance, 97",
+        "Leningrad region, Dorokhovo city, nab. Gagarina, 18",
+        "Chelyabinsk region, the city of Istra, Gogol Boulevard, 96",
+        "Arkhangelsk region, Shatura city, lane. Chekhov, 53",
+        "Smolensk region, Zaraysk city, lane Lenin, 64"
     )
     val listTypeBuildings = listOf(
         TypeBuildings.PUBLIC,
@@ -47,4 +47,3 @@ internal class ServiceTest {
     }
 }
 
-val listBuildings = listOf<Buildings>()
