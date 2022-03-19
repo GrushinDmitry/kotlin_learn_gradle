@@ -9,12 +9,12 @@ class Service(private val rate: Int, listBuildings: List<Buildings>) {
     а цену преобразует в валюту (курс, можно создать константой) и возвращает
      новую коллекцию отсортированную по возрастанию цены.*/
     fun doDescriptionConvertSort() = sequenceBuildings.sortedBy { it.price }
-        .map {
-            "ADDRESS: ${it.address}"
-            "TYPE: ${it.type}"
-            "AREA: ${it.area}"
-            "YEAR CONSTRUCTION: ${it.yearConstruction}"
-            "PRICE IN $: ${(it.price.toDouble() / rate)}"
+        .map { listOf(
+            "ADDRESS: ${it.address}",
+            "TYPE: ${it.type}",
+            "AREA: ${it.area}",
+            "YEAR CONSTRUCTION: ${it.yearConstruction}",
+            "PRICE IN $: ${(it.price.toDouble() / rate)}").joinToString("\n")
         }
 
 
