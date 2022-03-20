@@ -1,49 +1,134 @@
 package homework.lesson5
 
+import homework.lesson5.Language.EN
+import homework.lesson5.Language.RU
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class ServiceTest {
-    val rate = 100
-    val range = 0..4
-    val listAddress = listOf(
-        "Tula region, Stupino city, Cosmonauts entrance, 97",
-        "Leningrad region, Dorokhovo city, nab. Gagarina, 18",
-        "Chelyabinsk region, the city of Istra, Gogol Boulevard, 96",
-        "Arkhangelsk region, Shatura city, lane. Chekhov, 53",
-        "Smolensk region, Zaraysk city, lane Lenin, 64"
+    val BuildingsTulaRU = Buildings(
+        "Тульская обл., г. Ступино, въезд Космонавтов, 97",
+        "Общественные",
+        32,
+        1980,
+        1000000
     )
-    val listTypeBuildings = listOf(
-        TypeBuildings.PUBLIC,
-        TypeBuildings.AGRICULTURIAL,
-        TypeBuildings.RESIDENTIAL,
-        TypeBuildings.INDUSTRIAL,
-        TypeBuildings.AGRICULTURIAL
+    val BuildingsChelyabinskRU = Buildings(
+        "Челябинская область, город Истра, Гоголевский бульвар, 96",
+        "Жилые",
+        55,
+        1999,
+        1000000
     )
-    val listArea = listOf(32, 1000, 55, 47, 90)
-    val listYearConstruction = listOf(1980, 1910, 1999, 2022, 2013)
-    val listPrice = listOf(1000000, 110000000, 1000000, 8000000, 5000000)
-    val listBuildings = range.map {
-        Buildings(
-            listAddress[it],
-            listTypeBuildings[it],
-            listArea[it],
-            listYearConstruction[it],
-            listPrice[it]
-        )
-    }
-
-    val serviceBuildings = Service(rate, listBuildings)
+    val BuildingsSmolenskRU = Buildings(
+        "Смоленская область, г. Зарайск, пер. Ленина, 64",
+        "Сельскохозяйственные",
+        90,
+        2013,
+        5000000
+    )
+    val BuildingsArkhangelskRU = Buildings(
+        "Архангельская область, город Шатура, пер. Чехова, 53",
+        "Индустриальные",
+        47,
+        2022,
+        8000000
+    )
+    val BuildingsLeningradRU = Buildings(
+        "Ленинградская область, город Дорохово, наб. Гагарина, 18",
+        "Сельскохозяйственные",
+        1000,
+        1910,
+        110000000
+    )
 
     @Test
-    fun doDescriptionConvertSort() {
+    fun doDescriptionConvertSortEN() {
+        val rate = 100
+
+        val actual = ServiceBuildings.doLocalizationConvertSort(rate, EN)
+
+        val expected = listOf(
+            Buildings(
+                "Tula region, Stupino city, Cosmonauts entrance, 97",
+                "Public",
+                32,
+                1980,
+                1000000 / rate
+            ),
+            Buildings(
+                "Chelyabinsk region, the city of Istra, Gogol Boulevard, 96",
+                "Residential",
+                55,
+                1999,
+                1000000 / rate
+            ),
+            Buildings(
+                "Smolensk region, Zaraysk city, lane Lenin, 64",
+                "Agriculturial",
+                90,
+                2013,
+                5000000 / rate
+            ),
+            Buildings(
+                "Arkhangelsk region, Shatura city, lane. Chekhov, 53",
+                "Industrial",
+                47,
+                2022,
+                8000000 / rate
+            ),
+            Buildings(
+                "Leningrad region, Dorokhovo city, nab. Gagarina, 18",
+                "Agriculturial",
+                1000,
+                1910,
+                110000000 / rate
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun doDescriptionConvertSortRU() {
+        val rate = 1
+
+        val actual = ServiceBuildings.doLocalizationConvertSort(rate, RU)
+
+        val expected = listOf(
+            BuildingsTulaRU,
+            BuildingsChelyabinskRU,
+            BuildingsSmolenskRU,
+            BuildingsArkhangelskRU,
+            BuildingsLeningradRU
+        )
+        assertEquals(expected, actual)
     }
 
     @Test
     fun groupingByType() {
+        val actual = ServiceBuildings.groupingByType()
+
+        val expected = listOf(
+            "Общественные" to listOf(BuildingsTulaRU),
+            "Сельскохозяйственные" to listOf(BuildingsLeningradRU, BuildingsSmolenskRU),
+            "Жилые" to listOf(BuildingsChelyabinskRU),
+            "Индустриальные" to listOf(BuildingsArkhangelskRU)
+        )
+        assertEquals(expected, actual)
     }
 
     @Test
-    fun returnFirstThree() {
+    fun returnFirstThreeArea() {
+        val thresholdArea = 50
+
+        val actual = ServiceBuildings.returnFirstThreeArea(thresholdArea)
+
+        val expected = listOf(
+            "Address buildings: Ленинградская область, город Дорохово, наб. Гагарина, 18",
+            "Address buildings: Челябинская область, город Истра, Гоголевский бульвар, 96",
+            "Address buildings: Смоленская область, г. Зарайск, пер. Ленина, 64"
+        )
+        assertEquals(expected, actual)
     }
 }
 
