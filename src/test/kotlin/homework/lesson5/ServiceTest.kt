@@ -5,7 +5,7 @@ import homework.lesson5.Language.RU
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-internal class ServiceTest {
+internal class ServiceBuildingsTest {
     val BuildingsTulaRU = Buildings(
         "Тульская обл., г. Ступино, въезд Космонавтов, 97",
         "Общественные",
