@@ -10,43 +10,57 @@ internal class BuildingServiceTest {
 
     @Test
     fun doDescriptionConvertSortEN() {
-        val rate = 100
+        val actual = BuildingService().toLocalizedDescriptionSorted(buldings, rates.en, EN)
 
-        val actual =
-            BuildingService(stringServiceAddress, stringServiceType).toLocalizedDescriptionSort(listBuldings, rate, EN)
+        val expected = sequenceOf(
+            """\n${textDescriptionAddress.en} ${buildingTula.address.en}
+            |${textDescriptionType.en} ${buildingTula.type.en}
+            |${textDescriptionPrice.en} ${buildingTula.price / rates.en}""".trimMargin(),
+            """\n${textDescriptionAddress.en} ${buildingChelyabinsk.address.en}
+            |${textDescriptionType.en} ${buildingChelyabinsk.type.en}
+            |${textDescriptionPrice.en} ${buildingChelyabinsk.price / rates.en}""".trimMargin(),
+            """\n${textDescriptionAddress.en} ${buildingSmolensk.address.en}
+            |${textDescriptionType.en} ${buildingSmolensk.type.en}
+            |${textDescriptionPrice.en} ${buildingSmolensk.price / rates.en}""".trimMargin(),
+            """\n${textDescriptionAddress.en} ${buildingArkhangelsk.address.en}
+            |${textDescriptionType.en} ${buildingArkhangelsk.type.en}
+            |${textDescriptionPrice.en} ${buildingArkhangelsk.price / rates.en}""".trimMargin(),
+            """\n${textDescriptionAddress.en} ${buildingLeningrad.address.en}
+            |${textDescriptionType.en} ${buildingLeningrad.type.en}
+            |${textDescriptionPrice.en} ${buildingLeningrad.price / rates.en}""".trimMargin()
+        ).toList()
 
-        val expected = listOf(
-            listOf(listAddress[0][EN.name], listTypeBuildings[0][EN.name], "10000"),
-            listOf(listAddress[2][EN.name], listTypeBuildings[2][EN.name], "10000"),
-            listOf(listAddress[4][EN.name], listTypeBuildings[1][EN.name], "50000"),
-            listOf(listAddress[3][EN.name], listTypeBuildings[3][EN.name], "80000"),
-            listOf(listAddress[1][EN.name], listTypeBuildings[1][EN.name], "1100000")
-        )
         assertEquals(expected, actual)
-
     }
 
 
     @Test
     fun doDescriptionConvertSortRU() {
-        val rate = 1
+        val actual = BuildingService().toLocalizedDescriptionSorted(buldings, rates.ru, RU)
 
-        val actual =
-            BuildingService(stringServiceAddress, stringServiceType).toLocalizedDescriptionSort(listBuldings, rate, RU)
-
-        val expected = listOf(
-            listOf(listAddress[0][RU.name], listTypeBuildings[0][RU.name], "1000000"),
-            listOf(listAddress[2][RU.name], listTypeBuildings[2][RU.name], "1000000"),
-            listOf(listAddress[4][RU.name], listTypeBuildings[1][RU.name], "5000000"),
-            listOf(listAddress[3][RU.name], listTypeBuildings[3][RU.name], "8000000"),
-            listOf(listAddress[1][RU.name], listTypeBuildings[1][RU.name], "110000000")
-        )
+        val expected = sequenceOf(
+            """\n${textDescriptionAddress.ru} ${buildingTula.address.ru}
+            |${textDescriptionType.ru} ${buildingTula.type.ru}
+            |${textDescriptionPrice.ru} ${buildingTula.price / rates.ru}""".trimMargin(),
+            """\n${textDescriptionAddress.ru} ${buildingChelyabinsk.address.ru}
+            |${textDescriptionType.ru} ${buildingChelyabinsk.type.ru}
+            |${textDescriptionPrice.ru} ${buildingChelyabinsk.price / rates.ru}""".trimMargin(),
+            """\n${textDescriptionAddress.ru} ${buildingSmolensk.address.ru}
+            |${textDescriptionType.ru} ${buildingSmolensk.type.ru}
+            |${textDescriptionPrice.ru} ${buildingSmolensk.price / rates.ru}""".trimMargin(),
+            """\n${textDescriptionAddress.ru} ${buildingArkhangelsk.address.ru}
+            |${textDescriptionType.ru} ${buildingArkhangelsk.type.ru}
+            |${textDescriptionPrice.ru} ${buildingArkhangelsk.price / rates.ru}""".trimMargin(),
+            """\n${textDescriptionAddress.ru} ${buildingLeningrad.address.ru}
+            |${textDescriptionType.ru} ${buildingLeningrad.type.ru}
+            |${textDescriptionPrice.ru} ${buildingLeningrad.price / rates.ru}""".trimMargin()
+        ).toList()
         assertEquals(expected, actual)
     }
 
     @Test
     fun groupingByType() {
-        val actual = BuildingService(stringServiceAddress, stringServiceType).groupingByType(listBuldings)
+        val actual = BuildingService().groupingByType(buldings)
 
         val expected = mapOf(
             "Общественные" to listOf(buildingTula),
@@ -61,72 +75,58 @@ internal class BuildingServiceTest {
     fun returnFirstThreeArea() {
         val thresholdArea = 50
 
-        val actual =
-            BuildingService(stringServiceAddress, stringServiceType).returnFirstThreeArea(listBuldings, thresholdArea)
+        val actual = BuildingService().returnFirstThreeArea(buldings, thresholdArea)
 
         val expected = listOf(
-            "Address buildings: Челябинская область, город Истра, Гоголевский бульвар, 96",
-            "Address buildings: Смоленская область, г. Зарайск, пер. Ленина, 64",
-            "Address buildings: Ленинградская область, город Дорохово, наб. Гагарина, 18",
+            "${textDescriptionAddress.en} ${addressChelyabinsk.en}",
+            "${textDescriptionAddress.en} ${addressSmolensk.en}",
+            "${textDescriptionAddress.en} ${addressLeningrad.en}",
         )
         assertEquals(expected, actual)
     }
 
-    val listAddress = listOf(
-        mapOf(
-            "EN" to "Tula region, Stupino city, Cosmonauts entrance, 97",
-            "RU" to "Тульская обл., г. Ступино, въезд Космонавтов, 97"
-        ),
-        mapOf(
-            "EN" to "Leningrad region, Dorokhovo city, nab. Gagarina, 18",
-            "RU" to "Ленинградская область, город Дорохово, наб. Гагарина, 18"
-        ),
-        mapOf(
-            "EN" to "Chelyabinsk region, the city of Istra, Gogol Boulevard, 96",
-            "RU" to "Челябинская область, город Истра, Гоголевский бульвар, 96"
-        ),
-        mapOf(
-            "EN" to "Arkhangelsk region, Shatura city, lane. Chekhov, 53",
-            "RU" to "Архангельская область, город Шатура, пер. Чехова, 53"
-        ),
-        mapOf(
-            "EN" to "Smolensk region, Zaraysk city, lane Lenin, 64",
-            "RU" to "Смоленская область, г. Зарайск, пер. Ленина, 64"
-        ),
+    val rates = Rates(1, 100)
+    val typePublic = Localized("Общественные", "Public")
+    val typeAgriculturial = Localized("Сельскохозяйственные", "Agriculturial")
+    val typeResidential = Localized("Жилые", "Residential")
+    val typeIndustrial = Localized("Индустриальные", "Industrial")
+    val textDescriptionAddress = Localized("Адрес строения:", "Building address:")
+    val textDescriptionType = Localized("Тип строения:", "Building type:")
+    val textDescriptionPrice = Localized("Цена строения в рублях:", "Building price in \$:")
+    val addressTula = Localized(
+        "Тульская обл., г. Ступино, въезд Космонавтов, 97", "Tula region, Stupino city, Cosmonauts entrance, 97"
     )
-    val stringServiceAddress = StringService(listAddress)
-    val listTypeBuildings = listOf(
-        mapOf(
-            "EN" to "Public", "RU" to "Общественные"
-        ),
-        mapOf(
-            "EN" to "Agriculturial", "RU" to "Сельскохозяйственные"
-        ),
-        mapOf(
-            "EN" to "Residential", "RU" to "Жилые"
-        ),
-        mapOf(
-            "EN" to "Industrial", "RU" to "Индустриальные"
-        ),
+    val addressChelyabinsk = Localized(
+        "Челябинская область, город Истра, Гоголевский бульвар, 96",
+        "Chelyabinsk region, the city of Istra, Gogol Boulevard, 96"
+    )
+    val addressSmolensk = Localized(
+        "Смоленская область, г. Зарайск, пер. Ленина, 64", "Smolensk region, Zaraysk city, lane Lenin, 64"
+    )
+    val addressArkhangelsk = Localized(
+        "Архангельская область, город Шатура, пер. Чехова, 53", "Arkhangelsk region, Shatura city, lane. Chekhov, 53"
+    )
+    val addressLeningrad = Localized(
+        "Ленинградская область, город Дорохово, наб. Гагарина, 18",
+        "Leningrad region, Dorokhovo city, nab. Gagarina, 18"
+    )
 
-        )
-    val stringServiceType = StringService(listTypeBuildings)
     val buildingTula = Building(
-        0, 0, 32, 1980, 1000000
+        addressTula, typePublic, 32, 1980, 1000000
     )
     val buildingChelyabinsk = Building(
-        2, 2, 55, 1999, 1000000
+        addressChelyabinsk, typeResidential, 55, 1999, 1000000
     )
     val buildingSmolensk = Building(
-        4, 1, 90, 2013, 5000000
+        addressSmolensk, typeAgriculturial, 90, 2013, 5000000
     )
     val buildingArkhangelsk = Building(
-        3, 3, 47, 2022, 8000000
+        addressArkhangelsk, typeIndustrial, 47, 2022, 8000000
     )
     val buildingLeningrad = Building(
-        1, 1, 1000, 1910, 110000000
+        addressLeningrad, typeAgriculturial, 1000, 1910, 110000000
     )
-    val listBuldings = listOf(
+    val buldings = listOf(
         buildingTula, buildingChelyabinsk, buildingSmolensk, buildingArkhangelsk, buildingLeningrad
     )
 }
