@@ -10,7 +10,7 @@ data class Building(
     val yearOfConstruction: Int,
     val price: Int
 ) {
-    fun localizedDescriptionBuilding(language: Language, rate: Rates) = when (language) {
+    fun localizedDescription(language: Language, rate: Rates): String = when (language) {
         EN -> """Building address: ${address.en}
             |Building type: ${type.en}
             |Building price in $: ${price / rate.en}""".trimMargin()
