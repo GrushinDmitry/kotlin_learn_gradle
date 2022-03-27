@@ -26,7 +26,7 @@ class BaseService(private val baseClient: BaseClient) {
 
     fun getBuyingById(buyingId: Int): BuyingById {
         val buying = buyings[buyingId]
-        return requireNotNull(buying) { "Нет такого заказа!" }
+        return requireNotNull(buying) { "Нет такой покупки!" }
     }
 
 

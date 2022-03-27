@@ -1,7 +1,7 @@
 spring:
   application.name: agency
   profiles.active: dev
-server.port: 9090
+server.port: 9000
 
-base.address: http://localhost:9091
-ledger.address: http://localhost:9091
+base.address: http://localhost:9001
+ledger.address: http://localhost:9001
