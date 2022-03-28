@@ -19,9 +19,10 @@ class PropertyController(private val agency: Agency) {
     fun buyProperty(@RequestParam address: String, @RequestParam cash: Int): BuyResponse<Property> =
         agency.buyProperty(address, cash)
 
+
     @PostMapping("/buyer")
     fun welcomeBuyer(@RequestBody fullName: String): String =
-        "Hello, $fullName"
+        "Привет, $fullName"
 
     @GetMapping("/buy/{buyingId}")
     fun returnById(@PathVariable buyingId: Int): BuyingById =

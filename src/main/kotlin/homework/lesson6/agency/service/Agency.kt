@@ -21,9 +21,9 @@ class Agency(
             val property = baseService.getProperty(address)
             val (buying, change) = accounting.buyProperty(property, cash)
             baseService.buying(buying)
-            BuyResponse(property, Status.READY, change)
+            BuyResponse(property, buying.id, Status.READY, change)
         } catch (e: Exception) {
-            BuyResponse(item = null, Status.DECLINED, cash, e.message)
+            BuyResponse(item = null, id = null, Status.DECLINED, cash, e.message)
         }
 
     fun returnById(buyingId: Int): BuyingById =

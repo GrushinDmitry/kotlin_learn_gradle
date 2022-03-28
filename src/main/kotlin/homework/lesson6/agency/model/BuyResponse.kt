@@ -2,6 +2,7 @@ package homework.lesson6.agency.model
 
 data class BuyResponse<Property>(
     val item: Property? = null,
+    val id: Int?,
     val status: Status,
     val change: Int = 0,
     val comment: String? = null
