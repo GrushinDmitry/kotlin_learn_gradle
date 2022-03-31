@@ -5,29 +5,39 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.HttpClientErrorException
 
 @RestControllerAdvice
 class ControllerExceptionHandler {
 
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = LoggerFactory.getLogger(ControllerExceptionHandler::class.java)
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIllegalArgumentException(e: IllegalArgumentException): Map<String, String> {
         log.warn(e.message, e)
-        return errorResponse(e)
+        return response(e)
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleExceptionNotFound(e:  HttpClientErrorException.NotFound): Map<String, String> {
+        log.error(e.message, e)
+        return response(e)
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleException(e: Exception): Map<String, String> {
+    fun handleExceptionIntServerErr(e: Exception): Map<String, String> {
         log.error(e.message, e)
-        return errorResponse(e)
+        return response(e)
     }
 
-    private fun errorResponse(e: Exception): Map<String, String> = mapOf(
-        "status" to "error",
+
+
+    private fun response(e: Exception, userMessage: String = ""): Map<String, String> = mapOf(
         "exception" to e.javaClass.simpleName,
-        "message" to e.message.orEmpty()
+        "message" to e.message.orEmpty(),
+        "userMessage" to userMessage
     )
 }

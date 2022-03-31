@@ -7,9 +7,11 @@ import homework.lesson6.agency.model.PropertyBaseItem
 import homework.lesson6.agency.service.Agency
 import org.springframework.web.bind.annotation.*
 
+
 @RestController
 @RequestMapping("/property")
 class PropertyController(private val agency: Agency) {
+
 
     @GetMapping("/base")
     fun getPropertyBase(): Set<PropertyBaseItem> =
