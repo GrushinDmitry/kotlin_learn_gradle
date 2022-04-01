@@ -1,9 +1,7 @@
 package homework.lesson6.agency
 
-import homework.lesson6.agency.model.BuyResponse
-import homework.lesson6.agency.model.BuyingById
+
 import homework.lesson6.agency.model.Property
-import homework.lesson6.agency.model.PropertyBaseItem
 import homework.lesson6.agency.service.Agency
 import org.springframework.web.bind.annotation.*
 
@@ -12,21 +10,22 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/property")
 class PropertyController(private val agency: Agency) {
 
+    @PostMapping("/save")
+    fun saveProperty(@RequestBody property: Property): Property =
+        agency.saveProperty(property)
 
-    @GetMapping("/base")
-    fun getPropertyBase(): Set<PropertyBaseItem> =
-        agency.getPropertyBase()
+    @PostMapping("/find")
+    fun findPropertyByPrice(
+        @RequestParam price: Int,
+        @RequestParam pageNum: Int,
+        @RequestParam pageSize: Int,
+    ): List<Property> =
+        agency.findProperty(price, pageNum, pageSize)
 
-    @PostMapping("/buy")
-    fun buyProperty(@RequestParam address: String, @RequestParam cash: Int): BuyResponse<Property> =
-        agency.buyProperty(address, cash)
+    @DeleteMapping("/del/{id}")
+    fun delPropertyById(@PathVariable id: Int): String {
+        agency.delPropertyById(id)
+        return "Delete property with $id completed"
+    }
 
-
-    @PostMapping("/buyer")
-    fun welcomeBuyer(@RequestBody fullName: String): String =
-        "Привет, $fullName"
-
-    @GetMapping("/buy/{buyingId}")
-    fun returnById(@PathVariable buyingId: Int): BuyingById =
-        agency.returnById(buyingId)
 }
