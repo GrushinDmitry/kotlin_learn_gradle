@@ -7,29 +7,25 @@ import org.springframework.web.bind.annotation.*
 
 
 @RestController
-@RequestMapping("/property")
+@RequestMapping("/soldProperty")
 class PropertyController(private val agency: Agency) {
 
-    @PostMapping("/save")
-    fun saveProperty(@RequestBody id: Int): String {
-        agency.saveProperty(id)
-        return "Save property with id: $id completed"
-    }
+    @PostMapping("/add")
+    fun soldProperty(@RequestBody id: Int): Property = agency.addSoldProperty(id)
 
-    @PostMapping("/get/{id}")
-    fun getProperty(@PathVariable id: Int): Property = agency.getProperty(id)
 
-    @PostMapping("/find")
-    fun findPropertyByPrice(
-        @RequestParam price: Int,
-        @RequestParam pageNum: Int,
-        @RequestParam pageSize: Int,
-    ): List<Property> = agency.findProperty(price, pageNum, pageSize)
+    @GetMapping("/{id}")
+    fun getSoldProperty(@PathVariable id: Int): Property = agency.getSoldProperty(id)
 
-    @DeleteMapping("/del/{id}")
-    fun delPropertyById(@PathVariable id: Int): String {
-        agency.delPropertyById(id)
-        return "Delete property with id: $id completed"
-    }
+    @GetMapping("/find")
+    fun findSoldPropertyByPrice(
+        @RequestParam maxPrice: Int = 1000000,
+        @RequestParam pageNum: Int = 2,
+        @RequestParam pageSize: Int = 2,
+    ): List<Property> = agency.findSoldPropertiesByMaxPrice(maxPrice, pageNum, pageSize)
+
+    @DeleteMapping("/{id}")
+    fun delSoldPropertyById(@PathVariable id: Int): Property = agency.delSoldPropertyById(id)
+
 
 }

@@ -9,17 +9,17 @@ import org.springframework.web.client.getForObject
 
 
 @Service
-class BaseClient(
+class PropertiesClient(
     private val restTemplate: RestTemplate,
-    @Value("\${base.address}") private val baseAddress: String
+    @Value("\${properties.address}") private val propertiesAddress: String
 ) {
 
 
     fun getProperty(id: Int): Property? = try {
-        restTemplate.getForObject("$baseAddress$PROPERTY_BY_ID", id)
+        restTemplate.getForObject("$propertiesAddress$PROPERTY_BY_ID", id)
     } catch (e: NotFound) {
         null
     }
 }
 
-private const val PROPERTY_BY_ID = "/property?identification={id}"
+private const val PROPERTY_BY_ID = "/soldProperty?identification={id}"

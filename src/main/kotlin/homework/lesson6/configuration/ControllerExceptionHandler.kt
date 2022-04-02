@@ -21,7 +21,7 @@ class ControllerExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleExceptionNotFound(e:  HttpClientErrorException.NotFound): Map<String, String> {
+    fun handleExceptionNotFound(e: HttpClientErrorException.NotFound): Map<String, String> {
         val pageNotFound = "The page was dragged by the kraken to the seabed"
         log.error(e.message, e)
         return response(e, pageNotFound)
@@ -33,7 +33,6 @@ class ControllerExceptionHandler {
         log.error(e.message, e)
         return response(e)
     }
-
 
 
     private fun response(e: Exception, userMessage: String = ""): Map<String, String> = mapOf(

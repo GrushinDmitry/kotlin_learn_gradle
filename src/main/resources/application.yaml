@@ -3,6 +3,6 @@ spring:
   profiles.active: dev
 server.port: 9000
 
-base.address: http://localhost:9001
+properties.address: http://localhost:9001
 
 
