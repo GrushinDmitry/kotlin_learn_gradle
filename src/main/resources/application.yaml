@@ -4,5 +4,5 @@ spring:
 server.port: 9000
 
 base.address: http://localhost:9001
-ledger.address: http://localhost:9001
+
 

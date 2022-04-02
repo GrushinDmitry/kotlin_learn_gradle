@@ -1,69 +1,30 @@
 package homework.lesson6.agency.service
 
-import homework.lesson6.agency.model.*
+import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.client.BaseClient
+import homework.lesson6.agency.service.repo.PropertyBase
 import org.springframework.stereotype.Service
-import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class Agency(private val baseClient: BaseClient) {
+class Agency(private val baseClient: BaseClient, private val propertyBase: PropertyBase) {
 
-    fun getPropertyBase(): Set<PropertyBaseItem> =
-        baseService.getPropertyBase().map { property ->
-            val price = accounting.getPropertyPrice(property)
-            PropertyBaseItem(property, price)
-        }.toSet()
 
-    fun buyProperty(address: String, cash: Int): BuyResponse<Property> =
-        try {
-            val property = baseService.getProperty(address)
-            val (buying, change) = accounting.buyProperty(property, cash)
-            baseService.buying(buying)
-            BuyResponse(property, buying.id, Status.READY, change)
-        } catch (e: Exception) {
-            BuyResponse(item = null, id = null, Status.DECLINED, cash, e.message)
-        }
-
-    fun returnById(buyingId: Int): BuyingById =
-        baseService.getBuyingById(buyingId)
-
-    fun findProperty(price: Int, pageNum: Int, pageSize: Int): List<Property> {
-
+    fun findProperty(priceLess: Int, pageNum: Int, pageSize: Int): List<Property> {
+        require(priceLess > 0) { "The price cannot be negative" }
+        return propertyBase.findProperty(priceLess, pageNum, pageSize)
+            .ifEmpty { throw IllegalArgumentException("The properties with price less $priceLess not found") }
     }
 
-    fun saveProperty(property: Property): Property {
-
+    fun saveProperty(id: Int) {
+        val property = baseClient.getProperty(id) ?: noProperty(id)
+        propertyBase.saveProperty(property)
     }
 
-    fun delPropertyById(id: Int) {
+    fun delPropertyById(id: Int) = propertyBase.delPropertyById(id) ?: noProperty(id)
 
-    }
+    fun getProperty(id: Int): Property = propertyBase.getProperty(id) ?: noProperty(id)
+
+    private fun noProperty(id: Int): Nothing = throw IllegalArgumentException("The property with id: $id not found")
 
 }
 
-/*
-@Service
-class BaseService(private val baseClient: BaseClient) {
-
-    private val buyings = ConcurrentHashMap<Int, BuyingById>()
-
-    fun getPropertyBase(): Set<Property> = baseClient.getPropertyBase()
-
-    fun getProperty(address: String): Property {
-        val coffee = baseClient.getProperty(address)
-        return requireNotNull(coffee) { "Нет недвижимости с таким адресом!" }
-    }
-
-
-    fun buying(buying: BuyingById) {
-        buyings[buying.id] = buying
-    }
-
-
-    fun delPropertyById(id: Int): BuyingById {
-        val buying = buyings[buyingId]
-        return requireNotNull(buying) { "Нет такой покупки!" }
-    }
-
-
-}*/

@@ -14,15 +14,12 @@ class BaseClient(
     @Value("\${base.address}") private val baseAddress: String
 ) {
 
-   /* fun delPropertyBase(): Set<Property> =
-        restTemplate.exchange<Set<Property>>("$baseAddress$GET_PROPERTY_BY_ID", HttpMethod.DELETE).body.orEmpty()*/
-
 
     fun getProperty(id: Int): Property? = try {
-        restTemplate.getForObject("$baseAddress$GET_PROPERTY_BY_ID", id)
+        restTemplate.getForObject("$baseAddress$PROPERTY_BY_ID", id)
     } catch (e: NotFound) {
         null
     }
 }
 
-private const val GET_PROPERTY_BY_ID = "/property?identification={id}"
+private const val PROPERTY_BY_ID = "/property?identification={id}"

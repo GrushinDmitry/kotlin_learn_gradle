@@ -11,21 +11,25 @@ import org.springframework.web.bind.annotation.*
 class PropertyController(private val agency: Agency) {
 
     @PostMapping("/save")
-    fun saveProperty(@RequestBody property: Property): Property =
-        agency.saveProperty(property)
+    fun saveProperty(@RequestBody id: Int): String {
+        agency.saveProperty(id)
+        return "Save property with id: $id completed"
+    }
+
+    @PostMapping("/get/{id}")
+    fun getProperty(@PathVariable id: Int): Property = agency.getProperty(id)
 
     @PostMapping("/find")
     fun findPropertyByPrice(
         @RequestParam price: Int,
         @RequestParam pageNum: Int,
         @RequestParam pageSize: Int,
-    ): List<Property> =
-        agency.findProperty(price, pageNum, pageSize)
+    ): List<Property> = agency.findProperty(price, pageNum, pageSize)
 
     @DeleteMapping("/del/{id}")
     fun delPropertyById(@PathVariable id: Int): String {
         agency.delPropertyById(id)
-        return "Delete property with $id completed"
+        return "Delete property with id: $id completed"
     }
 
 }
