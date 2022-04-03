@@ -25,7 +25,7 @@ class SoldPropertyController(private val agencyService: AgencyService) {
     ): List<Property> = agencyService.findSoldPropertiesByMaxPrice(maxPrice, pageNum, pageSize)
 
     @DeleteMapping("/{id}")
-    fun delSoldPropertyById(@PathVariable id: Int): Property = agencyService.deleteSoldPropertyById(id)
+    fun deleteSoldPropertyById(@PathVariable id: Int): Property = agencyService.deleteSoldPropertyById(id)
 
 
 }
