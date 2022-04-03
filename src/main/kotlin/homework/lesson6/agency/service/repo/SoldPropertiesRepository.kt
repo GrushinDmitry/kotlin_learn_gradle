@@ -4,7 +4,7 @@ import homework.lesson6.agency.model.Property
 import org.springframework.stereotype.Repository
 
 @Repository
-class SoldProperties {
+class SoldPropertiesRepository {
     private val soldProperties = mutableMapOf<Int, Property>()
 
     fun add(property: Property): Property {
@@ -12,7 +12,7 @@ class SoldProperties {
         return property
     }
 
-    fun delById(id: Int): Property? = soldProperties.remove(id)
+    fun deleteById(id: Int): Property? = soldProperties.remove(id)
 
     fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =
         soldProperties.values.asSequence()
