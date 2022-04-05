@@ -1,5 +1,6 @@
 package homework.lesson6.agency.service
 
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
@@ -9,39 +10,36 @@ import homework.lesson6.agency.service.repo.SoldPropertiesRepository
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
-import io.kotest.core.test.TestResult
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.every
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.*
 import kotlin.text.Charsets.UTF_8
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper: ObjectMapper) : FeatureSpec(){
+
+class AgencyServiceTest(private val mockMvc: MockMvc, private val objectMapper: ObjectMapper) : FeatureSpec() {
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
 
-    @MockkBean
+    @Autowired
     private lateinit var soldPropertiesRepository: SoldPropertiesRepository
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
-    override suspend fun beforeEach(testCase: TestCase) {
+    override fun beforeEach(testCase: TestCase) {
+
+        every { propertiesClient.getProperty(any()) } answers { repositories.find { it.id == firstArg() } }
         returnAddedRepository()
-        every { propertiesClient.getProperty(100) } returns null
-        every { propertiesClient.getProperty(propertyLeningrad.id) } returns propertyLeningrad
-    }
 
-
-    override suspend fun afterEach(testCase: TestCase, result: TestResult) {
-        clearAllMocks()
     }
 
     init {
@@ -53,26 +51,24 @@ class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper:
             }
             scenario("failure - unknown property") {
 
-                getStatusSoldProperty(100) shouldBe internalServerError
+                getStatusSoldProperty(100) shouldBe badRequest
             }
         }
-
-
         feature("get property from ProportiesClient") {
 
             scenario("success") {
-
                 getSoldProperty(1) shouldBe propertyTula
                 getSoldProperty(4) shouldBe propertyArkhangelsk
             }
             scenario("failure - unknown property") {
 
-                getStatusGetSoldProperty(100) shouldBe internalServerError
+                getStatusGetSoldProperty(100) shouldBe badRequest
             }
         }
 
         feature("find sold property with pagination")
         {
+            returnAddedRepository()
             scenario("success:empty and noEmpty") {
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
                 findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(propertySmolensk)
@@ -92,7 +88,6 @@ class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper:
             scenario("success") {
                 deleteSoldPropertyById(4) shouldBe propertyArkhangelsk
                 getStatusDeleteSoldPropertyById(4) shouldBe badRequest
-                getStatusDeleteSoldPropertyById(1) shouldBe okRequest
             }
             scenario("failure - no such sold property") {
                 getStatusDeleteSoldPropertyById(100) shouldBe badRequest
@@ -100,14 +95,16 @@ class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper:
         }
     }
 
+    fun soldProperty(id: Int): Property =
+        mockMvc.post("/soldProperty/sold") { contentType = MediaType.APPLICATION_JSON; content = id }.readResponse()
 
-    fun soldProperty(id: Int): Property = mockMvc.post("/soldProperty/sold").readResponse()
+    fun getStatusSoldProperty(id: Int): Int =
+        mockMvc.post("/soldProperty/sold") { contentType = MediaType.APPLICATION_JSON; content = id }
+            .andReturn().response.status
 
-    fun getStatusSoldProperty(id: Int): Int = mockMvc.post("/soldProperty/sold").andReturn().response.status
+    fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
-    fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}").readResponse()
-
-    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get("/soldProperty/{id}").andReturn().response.status
+    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get("/soldProperty/{id}", id).andReturn().response.status
 
     fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> =
         mockMvc.get(
@@ -121,15 +118,15 @@ class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper:
             maxPrice, pageNum, pageSize
         ).andReturn().response.status
 
-    fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}").readResponse()
+    fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}", id).readResponse()
 
-    fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete("/soldProperty/{id}")
+    fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete("/soldProperty/{id}", id)
         .andReturn().response.status
 
-    private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
-        this.andExpect { status { isEqualTo(expectedStatus.value()) } }.andReturn().response.getContentAsString(UTF_8)
-            .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
-
+    private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T = this
+        .andExpect { status { isEqualTo(expectedStatus.value()) } }
+        .andReturn().response.getContentAsString(UTF_8)
+        .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
 
     private val propertyTula = Property(
         "Тульская обл., г. Ступино, въезд Космонавтов, 97",
@@ -151,15 +148,15 @@ class AgencyServiceTest (private val mockMvc: MockMvc, private val objectMapper:
         "Ленинградская область, город Дорохово, наб. Гагарина, 18",
         1000, 110000000, 5
     )
+    private val repositories =
+        setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
-    private val okRequest: Int = HttpStatus.OK.value()
-    private val internalServerError: Int = HttpStatus.INTERNAL_SERVER_ERROR.value()
+
     private fun returnAddedRepository() {
         soldPropertiesRepository.add(propertyTula)
         soldPropertiesRepository.add(propertyChelyabinsk)
         soldPropertiesRepository.add(propertySmolensk)
         soldPropertiesRepository.add(propertyArkhangelsk)
     }
-
 }
