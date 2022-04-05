@@ -13,7 +13,6 @@ import io.kotest.core.test.TestCase
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
@@ -25,49 +24,40 @@ import kotlin.text.Charsets.UTF_8
 @SpringBootTest
 @AutoConfigureMockMvc
 
-class AgencyServiceTest(private val mockMvc: MockMvc, private val objectMapper: ObjectMapper) : FeatureSpec() {
+class AgencyServiceTest(
+    private val mockMvc: MockMvc, private val objectMapper: ObjectMapper,
+    private val soldPropertiesRepository: SoldPropertiesRepository
+) : FeatureSpec() {
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
 
-    @Autowired
-    private lateinit var soldPropertiesRepository: SoldPropertiesRepository
-
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
     override fun beforeEach(testCase: TestCase) {
-
         every { propertiesClient.getProperty(any()) } answers { repositories.find { it.id == firstArg() } }
         returnAddedRepository()
-
     }
 
     init {
         feature("add property in SoldPropertiesRepository") {
-
             scenario("success") {
-
-                soldProperty(propertyLeningrad.id) shouldBe propertyLeningrad
+                addSoldProperty(propertyLeningrad.id) shouldBe propertyLeningrad
             }
             scenario("failure - unknown property") {
-
                 getStatusSoldProperty(100) shouldBe badRequest
             }
         }
         feature("get property from ProportiesClient") {
-
             scenario("success") {
                 getSoldProperty(1) shouldBe propertyTula
                 getSoldProperty(4) shouldBe propertyArkhangelsk
             }
             scenario("failure - unknown property") {
-
                 getStatusGetSoldProperty(100) shouldBe badRequest
             }
         }
-
-        feature("find sold property with pagination")
-        {
+        feature("find sold property with pagination") {
             returnAddedRepository()
             scenario("success:empty and noEmpty") {
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
@@ -75,16 +65,12 @@ class AgencyServiceTest(private val mockMvc: MockMvc, private val objectMapper: 
             }
             scenario("failure - illegalArguments") {
                 getStatusFindSoldPropertyByPrice(0, 1, 1) shouldBe badRequest
-
                 getStatusFindSoldPropertyByPrice(1, 0, 1) shouldBe badRequest
-
                 getStatusFindSoldPropertyByPrice(1, 1, 0) shouldBe badRequest
 
             }
         }
-
-        feature("delete sold property from SoldPropertiesRepository")
-        {
+        feature("delete sold property from SoldPropertiesRepository") {
             scenario("success") {
                 deleteSoldPropertyById(4) shouldBe propertyArkhangelsk
                 getStatusDeleteSoldPropertyById(4) shouldBe badRequest
@@ -95,7 +81,7 @@ class AgencyServiceTest(private val mockMvc: MockMvc, private val objectMapper: 
         }
     }
 
-    fun soldProperty(id: Int): Property =
+    fun addSoldProperty(id: Int): Property =
         mockMvc.post("/soldProperty/sold") { contentType = MediaType.APPLICATION_JSON; content = id }.readResponse()
 
     fun getStatusSoldProperty(id: Int): Int =

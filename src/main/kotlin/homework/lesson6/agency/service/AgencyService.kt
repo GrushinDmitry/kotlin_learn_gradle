@@ -6,7 +6,10 @@ import homework.lesson6.agency.service.repo.SoldPropertiesRepository
 import org.springframework.stereotype.Service
 
 @Service
-class AgencyService(private val propertiesClient: PropertiesClient, private val soldPropertiesRepository: SoldPropertiesRepository) {
+class AgencyService(
+    private val propertiesClient: PropertiesClient,
+    private val soldPropertiesRepository: SoldPropertiesRepository
+) {
 
 
     fun findSoldPropertiesByMaxPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> {
@@ -15,16 +18,16 @@ class AgencyService(private val propertiesClient: PropertiesClient, private val 
     }
 
     fun addSoldProperty(id: Int): Property {
-        val property = propertiesClient.getProperty(id) ?: noProperty(id)
+        val property = propertiesClient.getProperty(id) ?: propertyNotFound(id)
         soldPropertiesRepository.add(property)
         return property
     }
 
-    fun deleteSoldPropertyById(id: Int) = soldPropertiesRepository.deleteById(id) ?: noProperty(id)
+    fun deleteSoldPropertyById(id: Int): Property = soldPropertiesRepository.deleteById(id) ?: propertyNotFound(id)
 
-    fun getSoldProperty(id: Int): Property = soldPropertiesRepository.get(id) ?: noProperty(id)
+    fun getSoldProperty(id: Int): Property = soldPropertiesRepository.get(id) ?: propertyNotFound(id)
 
-    private fun noProperty(id: Int): Nothing = throw IllegalArgumentException("The property with id: $id not found")
+    private fun propertyNotFound(id: Int): Nothing = throw IllegalArgumentException("The property with id: $id not found")
 
 }
 

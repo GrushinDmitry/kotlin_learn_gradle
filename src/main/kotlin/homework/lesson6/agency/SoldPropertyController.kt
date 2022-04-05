@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class SoldPropertyController(private val agencyService: AgencyService) {
 
     @PostMapping("/sold")
-    fun soldProperty(@RequestBody id: Int): Property = agencyService.addSoldProperty(id)
+    fun addSoldProperty(@RequestBody id: Int): Property = agencyService.addSoldProperty(id)
 
 
     @GetMapping("/{id}")
