@@ -1,0 +1,8 @@
+spring:
+  application.name: agency
+  profiles.active: dev
+server.port: 9000
+
+properties.address: http://localhost:9001
+
+
