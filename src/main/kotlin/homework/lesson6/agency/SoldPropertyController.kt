@@ -1,6 +1,7 @@
 package homework.lesson6.agency
 
 
+import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.AgencyService
 import org.springframework.web.bind.annotation.*
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.*
 class SoldPropertyController(private val agencyService: AgencyService) {
 
     @PostMapping("/sold")
-    fun addSoldProperty(@RequestBody id: Int): Property = agencyService.addSoldProperty(id)
+    fun addSoldProperty(@RequestBody addSoldPropertyRequest: AddSoldPropertyRequest): Property =
+        agencyService.addSoldProperty(addSoldPropertyRequest)
 
 
     @GetMapping("/{id}")

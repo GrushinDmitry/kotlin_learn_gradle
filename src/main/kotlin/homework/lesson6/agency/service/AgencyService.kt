@@ -1,5 +1,6 @@
 package homework.lesson6.agency.service
 
+import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.client.PropertiesClient
 import homework.lesson6.agency.service.repo.SoldPropertiesRepository
@@ -17,8 +18,9 @@ class AgencyService(
         return soldPropertiesRepository.find(maxPrice, pageNum, pageSize)
     }
 
-    fun addSoldProperty(id: Int): Property {
-        val property = propertiesClient.getProperty(id) ?: propertyNotFound(id)
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property {
+        val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
+            ?: propertyNotFound(addSoldPropertyRequest.id)
         soldPropertiesRepository.add(property)
         return property
     }
@@ -27,7 +29,8 @@ class AgencyService(
 
     fun getSoldProperty(id: Int): Property = soldPropertiesRepository.get(id) ?: propertyNotFound(id)
 
-    private fun propertyNotFound(id: Int): Nothing = throw IllegalArgumentException("The property with id: $id not found")
+    private fun propertyNotFound(id: Int): Nothing =
+        throw IllegalArgumentException("The property with id: $id not found")
 
 }
 

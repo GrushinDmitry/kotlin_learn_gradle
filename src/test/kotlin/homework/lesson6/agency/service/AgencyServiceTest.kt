@@ -4,6 +4,7 @@ package homework.lesson6.agency.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
+import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.client.PropertiesClient
 import homework.lesson6.agency.service.repo.SoldPropertiesRepository
@@ -42,10 +43,10 @@ class AgencyServiceTest(
     init {
         feature("add property in SoldPropertiesRepository") {
             scenario("success") {
-                addSoldProperty(propertyLeningrad.id) shouldBe propertyLeningrad
+                addSoldProperty(AddSoldPropertyRequest(5)) shouldBe propertyLeningrad
             }
             scenario("failure - unknown property") {
-                getStatusSoldProperty(100) shouldBe badRequest
+                getStatusAddSoldProperty(AddSoldPropertyRequest(100)) shouldBe badRequest
             }
         }
         feature("get property from ProportiesClient") {
@@ -81,16 +82,23 @@ class AgencyServiceTest(
         }
     }
 
-    fun addSoldProperty(id: Int): Property =
-        mockMvc.post("/soldProperty/sold") { contentType = MediaType.APPLICATION_JSON; content = id }.readResponse()
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property =
+        mockMvc.post("/soldProperty/sold") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(addSoldPropertyRequest)
+        }.readResponse()
 
-    fun getStatusSoldProperty(id: Int): Int =
-        mockMvc.post("/soldProperty/sold") { contentType = MediaType.APPLICATION_JSON; content = id }
+    fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
+        mockMvc.post("/soldProperty/sold") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(addSoldPropertyRequest)
+        }
             .andReturn().response.status
 
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
-    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get("/soldProperty/{id}", id).andReturn().response.status
+    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get("/soldProperty/{id}", id).andReturn()
+        .response.status
 
     fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> =
         mockMvc.get(
