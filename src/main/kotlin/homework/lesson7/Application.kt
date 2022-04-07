@@ -1,6 +1,6 @@
-package homework.lesson6
+package homework.lesson7
 
-import homework.lesson6.configuration.ClientConfig
+import homework.lesson7.configuration.ClientConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication

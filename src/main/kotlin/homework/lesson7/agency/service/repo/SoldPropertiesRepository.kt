@@ -1,6 +1,6 @@
-package homework.lesson6.agency.service.repo
+package homework.lesson7.agency.service.repo
 
-import homework.lesson6.agency.model.Property
+import homework.lesson7.agency.model.Property
 import org.springframework.stereotype.Repository
 
 @Repository

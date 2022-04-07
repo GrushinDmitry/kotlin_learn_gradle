@@ -1,9 +1,9 @@
-package homework.lesson6.agency.service
+package homework.lesson7.agency.service
 
-import homework.lesson6.agency.model.AddSoldPropertyRequest
-import homework.lesson6.agency.model.Property
-import homework.lesson6.agency.service.client.PropertiesClient
-import homework.lesson6.agency.service.repo.SoldPropertiesRepository
+import homework.lesson7.agency.model.AddSoldPropertyRequest
+import homework.lesson7.agency.model.Property
+import homework.lesson7.agency.service.client.PropertiesClient
+import homework.lesson7.agency.service.repo.SoldPropertiesRepository
 import org.springframework.stereotype.Service
 
 @Service

@@ -1,4 +1,4 @@
-package homework.lesson6.agency.model
+package homework.lesson7.agency.model
 
 data class Property(
     val address: String,
