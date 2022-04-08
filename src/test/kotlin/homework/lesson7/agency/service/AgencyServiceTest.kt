@@ -7,7 +7,6 @@ import com.ninjasquad.springmockk.MockkBean
 import homework.lesson7.agency.model.AddSoldPropertyRequest
 import homework.lesson7.agency.model.Property
 import homework.lesson7.agency.service.client.PropertiesClient
-import homework.lesson7.agency.service.repo.SoldPropertiesRepository
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase

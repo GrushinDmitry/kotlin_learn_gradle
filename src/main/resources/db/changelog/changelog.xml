@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create" author="Dmitry">
+        <sql>
+            create table if not exist soldProperties
+            (
+            address varchar(200) not null,
+            area integer not null,
+            price integer not null,
+            id integer primary key
+            )
+        </sql>
+    </changeSet>
+    <changeSet id="initialize" author="Dmitry">
+        <sql>
+            insert into soldProperties values
+            ('Тульская обл., г. Ступино, въезд Космонавтов, 97', 32, 1000500, 1);
+            insert into soldProperties values
+            ('Челябинская область, город Истра, Гоголевский бульвар, 96', 55, 1500500, 2);
+            insert into soldProperties values
+            ('Смоленская область, г. Зарайск, пер. Ленина, 64', 15, 500500, 3);
+            insert into soldProperties values
+            ('Архангельская область, город Шатура, пер. Чехова, 53', 17, 900500, 4);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
