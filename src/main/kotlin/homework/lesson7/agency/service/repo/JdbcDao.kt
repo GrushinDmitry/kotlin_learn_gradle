@@ -22,12 +22,12 @@ class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
 
     override fun deleteById(id: Int): Property? {
         return jdbcTemplate.queryForStream(
-            "select * from persons where passport_number = ?",
+            "delete * property with id = ?",
             PreparedStatementSetter {
                 it.setInt(1, id)
             },
             PropertyMapper
-        ).findAny().orElse(null)
+        ).
     }
 
     override fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =
