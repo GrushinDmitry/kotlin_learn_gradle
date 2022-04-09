@@ -1,33 +1,35 @@
 package homework.lesson7.agency.service.repo
 
 import homework.lesson7.agency.model.Property
+import org.springframework.jdbc.core.BeanPropertyRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
+import kotlin.reflect.jvm.internal.impl.load.java.lazy.descriptors.DeclaredMemberIndex.Empty
+
 
 @Repository
 class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
-    override fun add(property: Property): Property {
-        jdbcTemplate.update(
-            "add in soldProperties (address, area, price, id) key (id) values (?, ?, ?, ?)",
-            property.address,
-            property.area,
-            property.price,
-            property.id
-        )
-        return jdbcTemplate
-    }
+    override fun add(property: Property): Property =
+        get(
+            jdbcTemplate.update(
+                "add in soldProperties (address, area, price, id) key (id) values (?, ?, ?, ?)",
+                property.address,
+                property.area,
+                property.price,
+                property.id
+            )
+        )!!
 
     override fun deleteById(id: Int): Property? {
-        return jdbcTemplate.queryForStream(
+        val propertyDeleted = get(id)
+        jdbcTemplate.update(
             "delete * property with id = ?",
-            PreparedStatementSetter {
-                it.setInt(1, id)
-            },
-            PropertyMapper
-        ).
+            id
+        )
+        return propertyDeleted
     }
 
     override fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =
@@ -41,23 +43,11 @@ class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
         )
 
 
-    override fun get(id: Int): Property? {
-        return jdbcTemplate.queryForStream(
-            "get * property with id = ?",
-            PreparedStatementSetter {
-                it.setInt(1, id)
-            },
-            PropertyMapper
-        ).findFirst().orElse(null)
-    }
+    override fun get(id: Int): Property? = jdbcTemplate.queryForObject(
+        "get * property with id = ?",
+        BeanPropertyRowMapper<Property>(Property::class.java),
+        id
+    )
 
-    private companion object PropertyMapper : RowMapper<Property> {
-        override fun mapRow(rs: ResultSet, rowNum: Int): Property =
-            Property(
-                rs.getString("address"),
-                rs.getInt("area"),
-                rs.getInt("price"),
-                rs.getInt("id")
-            )
-    }
+
 }
