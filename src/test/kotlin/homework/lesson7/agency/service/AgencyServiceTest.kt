@@ -17,13 +17,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.*
 import kotlin.text.Charsets.UTF_8
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
+@ActiveProfiles("jpa")
 class AgencyServiceTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper,
     private val soldPropertiesRepository: SoldPropertiesRepository

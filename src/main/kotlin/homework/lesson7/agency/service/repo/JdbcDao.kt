@@ -1,13 +1,14 @@
 package homework.lesson7.agency.service.repo
 
 import homework.lesson7.agency.model.Property
-import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.stereotype.Repository
 
-@Primary
+@Profile("jdbc")
+//@Primary
 @Repository
 class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
     override fun add(property: Property): Property =

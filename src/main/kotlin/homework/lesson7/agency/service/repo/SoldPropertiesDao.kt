@@ -4,6 +4,7 @@ import homework.lesson7.agency.model.Property
 
 
 
+
 interface SoldPropertiesDao {
     fun add(property: Property): Property
 

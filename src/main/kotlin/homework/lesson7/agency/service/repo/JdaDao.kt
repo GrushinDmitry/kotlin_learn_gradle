@@ -1,11 +1,13 @@
 package homework.lesson7.agency.service.repo
 
 import homework.lesson7.agency.model.Property
+import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 //@Primary
+@Profile("jda")
 @Repository
 class JdaDao(private val jdaSoldPropertiesRepository: JdaSoldPropertiesRepository) : SoldPropertiesDao {
 

@@ -4,10 +4,12 @@ import homework.lesson7.agency.model.AddSoldPropertyRequest
 import homework.lesson7.agency.model.Property
 import homework.lesson7.agency.service.client.PropertiesClient
 import homework.lesson7.agency.service.repo.SoldPropertiesDao
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
+@Profile("dev","test")
 @Service
-class AgencyService(
+class DevSoldPropertiesDao(
     private val propertiesClient: PropertiesClient,
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
