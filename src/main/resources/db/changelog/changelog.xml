@@ -1,22 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
-    <changeSet id="create" author="Dmitry">
+    <changeSet author="Dmitry" id="create">
         <sql>
-            create table if not exist soldProperties
+            create table soldproperties
             (
-            address varchar(200) not null,
-            area integer not null,
-            price integer not null,
-            id integer primary key
+            address varchar(255) not null,
+            area int not null,
+            price int not null,
+            id int primary key
             )
         </sql>
     </changeSet>
-    <changeSet id="initialize" author="Dmitry">
+    <changeSet author="Dmitry" id="initialize">
         <sql>
             insert into soldProperties values
             ('Тульская обл., г. Ступино, въезд Космонавтов, 97', 32, 1000500, 1);

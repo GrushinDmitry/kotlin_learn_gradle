@@ -1,12 +1,11 @@
 package homework.lesson7.agency.service.repo
 
 import homework.lesson7.agency.model.Property
-import org.springframework.context.annotation.Primary
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
-@Primary
+//@Primary
 @Repository
 class JdaDao(private val jdaSoldPropertiesRepository: JdaSoldPropertiesRepository) : SoldPropertiesDao {
 
@@ -19,7 +18,7 @@ class JdaDao(private val jdaSoldPropertiesRepository: JdaSoldPropertiesRepositor
     }
 
     override fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =
-        jdaSoldPropertiesRepository.findAll(PageRequest.of(pageNum, pageNum, Sort.by("price")))
+        jdaSoldPropertiesRepository.findAll(PageRequest.of(pageNum-1, pageSize, Sort.by("price")))
             .content.filter { it.price < priceMax }
 
 
