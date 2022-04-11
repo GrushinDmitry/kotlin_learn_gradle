@@ -1,11 +1,13 @@
 package homework.lesson7.configuration
 
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.HttpClientErrorException
+import javax.persistence.EntityNotFoundException
 
 @RestControllerAdvice
 class ControllerExceptionHandler {
@@ -15,6 +17,20 @@ class ControllerExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIllegalArgumentException(e: IllegalArgumentException): Map<String, String> {
+        log.warn(e.message, e)
+        return response(e)
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleEntityNotFoundException(e: EntityNotFoundException): Map<String, String> {
+        log.warn(e.message, e)
+        return response(e)
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleDataAccessException(e: DataAccessException): Map<String, String> {
         log.warn(e.message, e)
         return response(e)
     }

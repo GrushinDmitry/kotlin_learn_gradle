@@ -7,6 +7,7 @@ import com.ninjasquad.springmockk.MockkBean
 import homework.lesson7.agency.model.AddSoldPropertyRequest
 import homework.lesson7.agency.model.Property
 import homework.lesson7.agency.service.client.PropertiesClient
+import homework.lesson7.agency.service.repo.SoldPropertiesDao
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
@@ -24,10 +25,11 @@ import kotlin.text.Charsets.UTF_8
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("jpa")
-class AgencyServiceTest(
+//@ActiveProfiles("test","jda")
+@ActiveProfiles("test","jdbc")
+class DevSoldPropertiesDaoTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper,
-    private val soldPropertiesRepository: SoldPropertiesRepository
+    private val soldPropertiesDao: SoldPropertiesDao
 ) : FeatureSpec() {
 
     @MockkBean
@@ -36,20 +38,21 @@ class AgencyServiceTest(
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
     override fun beforeEach(testCase: TestCase) {
-        every { propertiesClient.getProperty(any()) } answers { repositories.find { it.id == firstArg() } }
-        returnAddedRepository()
+        every { propertiesClient.getProperty(any()) } answers { properties.find { it.id == firstArg() } }
+
     }
 
     init {
-        feature("add property in SoldPropertiesRepository") {
+        feature("add property in SoldPropertiesDao") {
             scenario("success") {
                 addSoldProperty(AddSoldPropertyRequest(5)) shouldBe propertyLeningrad
+                getSoldProperty(5) shouldBe propertyLeningrad
             }
             scenario("failure - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(100)) shouldBe badRequest
             }
         }
-        feature("get property from ProportiesClient") {
+        feature("get property from SoldPropertiesDao") {
             scenario("success") {
                 getSoldProperty(1) shouldBe propertyTula
                 getSoldProperty(4) shouldBe propertyArkhangelsk
@@ -59,10 +62,10 @@ class AgencyServiceTest(
             }
         }
         feature("find sold property with pagination") {
-            returnAddedRepository()
             scenario("success:empty and noEmpty") {
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
                 findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(propertySmolensk)
+                findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(propertySmolensk, propertyArkhangelsk)
             }
             scenario("failure - illegalArguments") {
                 getStatusFindSoldPropertyByPrice(0, 1, 1) shouldBe badRequest
@@ -71,10 +74,11 @@ class AgencyServiceTest(
 
             }
         }
-        feature("delete sold property from SoldPropertiesRepository") {
+        feature("delete sold property from SoldPropertiesDao") {
             scenario("success") {
                 deleteSoldPropertyById(4) shouldBe propertyArkhangelsk
                 getStatusDeleteSoldPropertyById(4) shouldBe badRequest
+
             }
             scenario("failure - no such sold property") {
                 getStatusDeleteSoldPropertyById(100) shouldBe badRequest
@@ -103,13 +107,13 @@ class AgencyServiceTest(
     fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> =
         mockMvc.get(
             "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}",
-            maxPrice, pageNum, pageSize
+            maxPrice, pageSize, pageNum
         ).readResponse()
 
     fun getStatusFindSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): Int =
         mockMvc.get(
             "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}",
-            maxPrice, pageNum, pageSize
+            maxPrice, pageSize, pageNum
         ).andReturn().response.status
 
     fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}", id).readResponse()
@@ -142,15 +146,11 @@ class AgencyServiceTest(
         "Ленинградская область, город Дорохово, наб. Гагарина, 18",
         1000, 110000000, 5
     )
-    private val repositories =
+    private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
+    private val internalServerError: Int = HttpStatus.INTERNAL_SERVER_ERROR.value()
 
-    private fun returnAddedRepository() {
-        soldPropertiesRepository.add(propertyTula)
-        soldPropertiesRepository.add(propertyChelyabinsk)
-        soldPropertiesRepository.add(propertySmolensk)
-        soldPropertiesRepository.add(propertyArkhangelsk)
-    }
+
 }

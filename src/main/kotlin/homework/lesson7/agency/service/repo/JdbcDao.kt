@@ -7,9 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.stereotype.Repository
 
-@Profile("jdbc")
+
 //@Primary
 @Repository
+@Profile("jdbc")
 class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
     override fun add(property: Property): Property =
         get(
@@ -23,12 +24,12 @@ class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
         )!!
 
     override fun deleteById(id: Int): Property? {
-        val propertyDeleted = get(id)
+        val deletedSoldProperty = get(id)
         jdbcTemplate.update(
             "delete from soldproperties where id = ?",
             id
         )
-        return propertyDeleted
+        return deletedSoldProperty
     }
 
     override fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =

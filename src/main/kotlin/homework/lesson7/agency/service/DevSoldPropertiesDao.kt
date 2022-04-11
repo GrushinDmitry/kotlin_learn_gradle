@@ -7,8 +7,9 @@ import homework.lesson7.agency.service.repo.SoldPropertiesDao
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
-@Profile("dev","test")
+
 @Service
+@Profile("dev", "test")
 class DevSoldPropertiesDao(
     private val propertiesClient: PropertiesClient,
     private val soldPropertiesDao: SoldPropertiesDao
