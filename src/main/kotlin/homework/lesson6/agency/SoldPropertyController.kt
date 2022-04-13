@@ -1,9 +1,9 @@
-package homework.lesson7.agency
+package homework.lesson6.agency
 
 
-import homework.lesson7.agency.model.AddSoldPropertyRequest
-import homework.lesson7.agency.model.Property
-import homework.lesson7.agency.service.DevSoldPropertiesDao
+import homework.lesson6.agency.model.AddSoldPropertyRequest
+import homework.lesson6.agency.model.Property
+import homework.lesson6.agency.service.DevSoldPropertiesDao
 import org.springframework.web.bind.annotation.*
 
 

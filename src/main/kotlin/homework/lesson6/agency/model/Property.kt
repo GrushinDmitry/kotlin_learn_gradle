@@ -1,4 +1,4 @@
-package homework.lesson7.agency.model
+package homework.lesson6.agency.model
 
 
 import org.hibernate.Hibernate

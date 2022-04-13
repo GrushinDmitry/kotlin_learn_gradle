@@ -1,4 +1,4 @@
-package homework.lesson7.configuration
+package homework.lesson6.configuration
 
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException

@@ -1,6 +1,6 @@
-package homework.lesson7.agency.service.client
+package homework.lesson6.agency.service.client
 
-import homework.lesson7.agency.model.Property
+import homework.lesson6.agency.model.Property
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.NotFound

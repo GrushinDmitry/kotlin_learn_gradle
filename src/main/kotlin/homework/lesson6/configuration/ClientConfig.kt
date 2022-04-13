@@ -1,4 +1,4 @@
-package homework.lesson7.configuration
+package homework.lesson6.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
