@@ -4,9 +4,9 @@ import homework.lesson6.agency.model.Property
 import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Service
 
-@Repository
+@Service
 @Profile("jdbc")
 class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
 

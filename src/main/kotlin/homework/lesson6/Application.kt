@@ -8,7 +8,6 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 @EnableConfigurationProperties(ClientConfig::class)
-
 class Application
 
 fun main() {

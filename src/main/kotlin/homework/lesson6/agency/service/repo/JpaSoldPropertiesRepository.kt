@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface JdaSoldPropertiesRepository: JpaRepository<Property,Int> {
+interface JpaSoldPropertiesRepository: JpaRepository<Property,Int> {
 }

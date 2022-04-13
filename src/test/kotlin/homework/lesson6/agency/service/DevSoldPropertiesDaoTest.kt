@@ -25,8 +25,8 @@ import kotlin.text.Charsets.UTF_8
 
 @SpringBootTest
 @AutoConfigureMockMvc
-//@ActiveProfiles("test","jpa")
-@ActiveProfiles("test","jdbc")
+@ActiveProfiles("test","jpa")
+//@ActiveProfiles("test","jdbc")
 class DevSoldPropertiesDaoTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper,
     private val soldPropertiesDao: SoldPropertiesDao

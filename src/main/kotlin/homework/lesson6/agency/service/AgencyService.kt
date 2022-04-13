@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @Profile("dev", "test")
-class DevSoldPropertiesDao(
+class AgencyService(
     private val propertiesClient: PropertiesClient,
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
