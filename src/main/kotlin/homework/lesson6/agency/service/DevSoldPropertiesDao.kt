@@ -15,7 +15,6 @@ class DevSoldPropertiesDao(
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
 
-
     fun findSoldPropertiesByMaxPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> {
         require(maxPrice > 0 && pageNum > 0 && pageSize > 0) { "The arguments must be positive" }
         return soldPropertiesDao.find(maxPrice, pageNum, pageSize)
@@ -34,6 +33,5 @@ class DevSoldPropertiesDao(
 
     private fun propertyNotFound(id: Int): Nothing =
         throw IllegalArgumentException("The property with id: $id not found")
-
 }
 

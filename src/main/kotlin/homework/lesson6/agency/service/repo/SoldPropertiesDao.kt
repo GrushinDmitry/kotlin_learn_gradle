@@ -6,6 +6,7 @@ import homework.lesson6.agency.model.Property
 
 
 interface SoldPropertiesDao {
+
     fun add(property: Property): Property
 
     fun deleteById(id: Int): Property?

@@ -13,8 +13,6 @@ class PropertiesClient(
     private val restTemplate: RestTemplate,
     @Value("\${properties.address}") private val propertiesAddress: String
 ) {
-
-
     fun getProperty(id: Int): Property? = try {
         restTemplate.getForObject("$propertiesAddress$PROPERTY_BY_ID", id)
     } catch (e: NotFound) {
