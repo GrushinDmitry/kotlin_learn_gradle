@@ -1,6 +1,7 @@
 package homework.lesson6.configuration
 
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.dao.DataAccessException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -21,6 +22,7 @@ class ControllerExceptionHandler {
         return response(e)
     }
 
+    @Profile("jpa")
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleEntityNotFoundException(e: EntityNotFoundException): Map<String, String> {
@@ -28,6 +30,7 @@ class ControllerExceptionHandler {
         return response(e)
     }
 
+    @Profile("jdbc")
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleDataAccessException(e: DataAccessException): Map<String, String> {
@@ -49,7 +52,6 @@ class ControllerExceptionHandler {
         log.error(e.message, e)
         return response(e)
     }
-
 
     private fun response(e: Exception, userMessage: String = ""): Map<String, String> = mapOf(
         "exception" to e.javaClass.simpleName,

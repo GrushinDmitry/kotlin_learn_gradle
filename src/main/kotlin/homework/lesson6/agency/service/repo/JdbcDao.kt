@@ -28,7 +28,6 @@ class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
             priceMax, pageSize, pageSize * (pageNum - 1)
         )
 
-
     override fun get(id: Int): Property? = jdbcTemplate.queryForObject(
         sqlQueryGet, DataClassRowMapper(Property::class.java), id
     )

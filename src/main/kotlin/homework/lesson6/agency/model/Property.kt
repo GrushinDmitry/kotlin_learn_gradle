@@ -1,12 +1,10 @@
 package homework.lesson6.agency.model
 
-
 import org.hibernate.Hibernate
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
-
 
 @Entity
 @Table(name = "soldproperties")

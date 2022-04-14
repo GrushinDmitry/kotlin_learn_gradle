@@ -7,7 +7,7 @@ import com.ninjasquad.springmockk.MockkBean
 import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.client.PropertiesClient
-import homework.lesson6.agency.service.repo.SoldPropertiesDao
+import homework.lesson6.agency.service.repo.DevSoldPropertiesDao
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
@@ -26,10 +26,10 @@ import kotlin.text.Charsets.UTF_8
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test","jpa")
-//@ActiveProfiles("test","jdbc")
-class DevSoldPropertiesDaoTest(
+//@ActiveProfiles("test", "jdbc")
+class AgencyServiceTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper,
-    private val soldPropertiesDao: SoldPropertiesDao
+    private val devSoldPropertiesDao: DevSoldPropertiesDao
 ) : FeatureSpec() {
 
     @MockkBean
@@ -151,6 +151,4 @@ class DevSoldPropertiesDaoTest(
 
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
     private val internalServerError: Int = HttpStatus.INTERNAL_SERVER_ERROR.value()
-
-
 }
