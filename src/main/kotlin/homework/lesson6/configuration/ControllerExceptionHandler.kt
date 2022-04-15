@@ -22,17 +22,17 @@ class ControllerExceptionHandler {
         return response(e)
     }
 
-    @Profile("jpa")
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @Profile("jpa")
     fun handleEntityNotFoundException(e: EntityNotFoundException): Map<String, String> {
         log.warn(e.message, e)
         return response(e)
     }
 
-    @Profile("jdbc")
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @Profile("jdbc")
     fun handleDataAccessException(e: DataAccessException): Map<String, String> {
         log.warn(e.message, e)
         return response(e)

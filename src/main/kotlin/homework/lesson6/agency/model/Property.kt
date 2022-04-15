@@ -1,21 +1,20 @@
 package homework.lesson6.agency.model
 
 import org.hibernate.Hibernate
-import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
 
 @Entity
-@Table(name = "soldproperties")
+@Table(name = "sold_properties")
 data class Property(
-    @Column val address: String,
-    @Column val area: Int,
-    @Column val price: Int,
-    @Id @Column val id: Int
+    @Id val id: Int,
+    val address: String,
+    val area: Int,
+    val price: Int,
 ) {
     override fun toString(): String {
-        return this::class.simpleName + "(address = $address , area = $area,price = $price , id = $id  )"
+        return this::class.simpleName + "(id = $id, address = $address, area = $area, price = $price)"
     }
 
     override fun equals(other: Any?): Boolean {

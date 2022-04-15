@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
-
 @Service
 @Profile("jpa")
 class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
