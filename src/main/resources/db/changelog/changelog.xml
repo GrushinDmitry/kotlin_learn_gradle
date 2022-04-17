@@ -8,7 +8,7 @@
         <sql>
             create table sold_properties
             (
-            id int primary key,
+            id int auto_increment primary key,
             address varchar(255) not null,
             area int not null,
             price int not null
@@ -17,14 +17,11 @@
     </changeSet>
     <changeSet author="Dmitry" id="initialize">
         <sql>
-            insert into sold_properties values
-            (1,'Тульская обл., г. Ступино, въезд Космонавтов, 97', 32, 1000500);
-            insert into sold_properties values
-            (2,'Челябинская область, город Истра, Гоголевский бульвар, 96', 55, 1500500);
-            insert into sold_properties values
-            (3,'Смоленская область, г. Зарайск, пер. Ленина, 64', 15, 500500);
-            insert into sold_properties values
-            (4,'Архангельская область, город Шатура, пер. Чехова, 53', 17, 900500);
+            insert into sold_properties (address, area, price) values
+            ('Тульская обл., г. Ступино, въезд Космонавтов, 97', 32, 1000500),
+            ('Челябинская область, город Истра, Гоголевский бульвар, 96', 55, 1500500),
+            ('Смоленская область, г. Зарайск, пер. Ленина, 64', 15, 500500),
+            ('Архангельская область, город Шатура, пер. Чехова, 53', 17, 900500);
         </sql>
     </changeSet>
 </databaseChangeLog>
