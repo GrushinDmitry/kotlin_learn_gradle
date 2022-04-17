@@ -5,44 +5,59 @@ import java.util.concurrent.Executor
 import java.util.concurrent.LinkedBlockingQueue
 
 class ThreadPool(size: Int) : Executor {
-
+    @Volatile
+    private var isRunning = true
     private val tasks = LinkedBlockingQueue<Runnable>()
     private val threads = LinkedList<WorkerThread>()
 
-    @Volatile
-    private var isStarted = false
-
     init {
-        if (size !in 1..maxSize) throw IllegalArgumentException("The size not in the range of 1 to $maxSize")
-        threads.forEach { it.start() }
-    }
-
-    override fun execute(command: Runnable) {
-        if (!isStarted) throw IllegalThreadStateException("Thread pool stopped")
-        synchronized(tasks) {
-            tasks.add(command)
-            (tasks as Object).notify()
+        if (threads.size !in 1..maxSize) throw IllegalArgumentException("The size not in the range of 1 to $maxSize")
+        repeat(size) {
+            val workerThread = WorkerThread()
+            workerThread.start()
+            threads.add(workerThread)
         }
     }
 
-    fun shutdown() {
-        isStarted = false
+    override fun execute(command: Runnable) {
+        if (!isRunning) throw IllegalThreadStateException("Thread pool stopped")
         synchronized(tasks) {
+            tasks.add(command)
             (tasks as Object).notifyAll()
         }
     }
 
-    private class WorkerThread : Thread() {
-
-        override fun run() {
-
-            while (true) {
-
-            }
-        }
-
+    fun shutdown() {
+        threads.forEach { it.interrupt() }
+        isRunning = false
     }
 
+    private inner class WorkerThread : Thread() {
+        lateinit var task: Runnable
+        override fun run() {
+            while (true) {
+                synchronized(tasks) {
+                    while (tasks.isEmpty() && isRunning) {
+                        try {
+                            (tasks as Object).wait()
+                        } catch (e: InterruptedException) {
+                            println("An error occurred while tasks is waiting: " + e.message)
+                        }
+                    }
+                    task.run()
+                    try {
+                        task = tasks.poll()
+                        task.run()
+                        (tasks as Object).notifyAll()
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+    }
 }
 
 private const val maxSize = 8
+
+

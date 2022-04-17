@@ -1,15 +1,17 @@
 package homework.lesson8
 
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FeatureSpec
 
-internal class ThreadPoolTest {
+class ThreadPoolTest : FeatureSpec() {
 
-    @BeforeEach
-    fun setUp() {
-    }
+    init {
+        feature("test init") {
+            scenario("fail size") {
+                shouldThrow<IllegalArgumentException> { ThreadPool(0) }
+                shouldThrow<IllegalArgumentException> { ThreadPool(9) }
+            }
 
-    @AfterEach
-    fun tearDown() {
+        }
     }
 }
