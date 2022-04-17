@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service
 class DevSoldPropertiesDao : SoldPropertiesDao {
 
     private val soldProperties = mutableMapOf<Int, Property>()
+    private var counter = 0
 
     override fun add(property: Property): Property {
-        soldProperties[property.id] = property
-        return property
+        val newProperty=Property(++counter, property.address, property.area,property.price)
+        soldProperties[counter] = newProperty
+        return newProperty
     }
 
     override fun deleteById(id: Int): Property? = soldProperties.remove(id)

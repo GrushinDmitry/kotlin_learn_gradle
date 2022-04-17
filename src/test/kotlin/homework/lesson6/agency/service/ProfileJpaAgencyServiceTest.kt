@@ -24,7 +24,8 @@ import kotlin.text.Charsets.UTF_8
 @AutoConfigureMockMvc
 @ActiveProfiles("jpa")
 class ProfileJpaAgencyServiceTest(
-    private val mockMvc: MockMvc, private val objectMapper: ObjectMapper
+    private val mockMvc: MockMvc,
+    private val objectMapper: ObjectMapper
 ) : FeatureSpec() {
 
     @MockkBean

@@ -22,9 +22,9 @@ import org.springframework.test.web.servlet.*
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("jdbc")
-
-class ProfileJdbcAgencyServiceTest (
-    private val mockMvc: MockMvc, private val objectMapper: ObjectMapper
+class ProfileJdbcAgencyServiceTest(
+    private val mockMvc: MockMvc,
+    private val objectMapper: ObjectMapper
 ) : FeatureSpec() {
 
     @MockkBean
@@ -34,7 +34,6 @@ class ProfileJdbcAgencyServiceTest (
 
     override fun beforeEach(testCase: TestCase) {
         every { propertiesClient.getProperty(any()) } answers { properties.find { it.id == firstArg() } }
-
     }
 
     init {
@@ -91,13 +90,13 @@ class ProfileJdbcAgencyServiceTest (
         mockMvc.post("/soldProperty/sold") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-        }
-            .andReturn().response.status
+        }.andReturn().response.status
 
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
-    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get("/soldProperty/{id}", id).andReturn()
-        .response.status
+    fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get(
+        "/soldProperty/{id}", id
+    ).andReturn().response.status
 
     fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> =
         mockMvc.get(
@@ -113,8 +112,9 @@ class ProfileJdbcAgencyServiceTest (
 
     fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}", id).readResponse()
 
-    fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete("/soldProperty/{id}", id)
-        .andReturn().response.status
+    fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete(
+        "/soldProperty/{id}", id
+    ).andReturn().response.status
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T = this
         .andExpect { status { isEqualTo(expectedStatus.value()) } }

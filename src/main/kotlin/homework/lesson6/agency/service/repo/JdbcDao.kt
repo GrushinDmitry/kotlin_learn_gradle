@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service
 
 @Service
 @Profile("jdbc")
-class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
+private class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
+    private var count: Int = 0
 
     override fun add(property: Property): Property {
-        val id = property.id
-        jdbcTemplate.update(sqlQueryAdd, id, property.address, property.area, property.price)
-        return get(id)!!
+        jdbcTemplate.update(sqlQueryAdd, ++count, property.address, property.area, property.price)
+        return get(count)!!
     }
 
     override fun deleteById(id: Int): Property? {

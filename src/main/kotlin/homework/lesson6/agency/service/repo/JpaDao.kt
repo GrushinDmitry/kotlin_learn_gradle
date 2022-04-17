@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @Profile("jpa")
-class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
+private class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
 
     override fun add(property: Property): Property = repository.save(property)
 

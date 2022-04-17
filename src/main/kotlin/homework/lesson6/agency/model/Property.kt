@@ -2,19 +2,30 @@ package homework.lesson6.agency.model
 
 import org.hibernate.Hibernate
 import javax.persistence.Entity
+import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
 
 @Entity
 @Table(name = "sold_properties")
 data class Property(
-    @Id val id: Int,
+    @Id
+    @GeneratedValue
+    val id: Int,
     val address: String,
     val area: Int,
     val price: Int,
 ) {
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id, address = $address, area = $area, price = $price)"
+        val value = mutableMapOf<String, Any?>()
+        this::class.declaredMemberProperties.forEach { value[it.name] = it.call(this) }
+        return this::class.simpleName + this::class.primaryConstructor?.parameters?.joinToString(
+            prefix = "(",
+            postfix = ")"
+        )
+        { "${it.name} = ${value[it.name]}" }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -26,6 +37,7 @@ data class Property(
 
     override fun hashCode(): Int = 1756406093
 }
+
 
 
 
