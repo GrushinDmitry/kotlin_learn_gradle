@@ -1,10 +1,7 @@
 package homework.lesson6.agency.model
 
 import org.hibernate.Hibernate
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 
@@ -12,7 +9,7 @@ import kotlin.reflect.full.primaryConstructor
 @Table(name = "sold_properties")
 data class Property(
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int,
     val address: String,
     val area: Int,
@@ -37,6 +34,7 @@ data class Property(
 
     override fun hashCode(): Int = 1756406093
 }
+
 
 
 

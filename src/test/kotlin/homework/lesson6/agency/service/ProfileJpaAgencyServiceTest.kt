@@ -41,7 +41,7 @@ class ProfileJpaAgencyServiceTest(
     init {
         feature("add property in SoldPropertiesDao") {
             scenario("success") {
-                addSoldProperty(AddSoldPropertyRequest(5)) shouldBe propertyLeningrad
+                addSoldProperty(AddSoldPropertyRequest(7)) shouldBe propertyLeningrad
                 getSoldProperty(5) shouldBe propertyLeningrad
             }
             scenario("failure - unknown property") {
@@ -135,7 +135,7 @@ class ProfileJpaAgencyServiceTest(
         4, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
     )
     private val propertyLeningrad = Property(
-        5, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
+        7, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
     )
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
