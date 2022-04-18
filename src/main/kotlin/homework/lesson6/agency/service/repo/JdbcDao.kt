@@ -11,7 +11,7 @@ import java.sql.Statement
 @Service
 @Profile("jdbc")
 private class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
-    val keyHolder = GeneratedKeyHolder()
+    private val keyHolder = GeneratedKeyHolder()
 
     override fun add(property: Property): Property {
         jdbcTemplate.update(
@@ -27,7 +27,6 @@ private class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
             },
             keyHolder
         )
-        println(get(keyHolder.key!!.toInt()))
         return get(keyHolder.key!!.toInt())
             ?: throw IllegalStateException("Property not added")
     }
@@ -45,9 +44,13 @@ private class JdbcDao(val jdbcTemplate: JdbcTemplate) : SoldPropertiesDao {
     override fun get(id: Int): Property? = jdbcTemplate.queryForObject(
         sqlQueryGet, DataClassRowMapper(Property::class.java), id
     )
+
+    override fun getId(): Int = jdbcTemplate.queryForObject(sqlQueryGetId, Int::class.java)!!
 }
 
 private const val sqlQueryAdd = "insert into sold_properties (address, area, price) values (?, ?, ?)"
 private const val sqlQueryDelete = "delete from sold_properties where id = ?"
 private const val sqlQueryFind = "select * from sold_properties where price < ? order by price limit ? offset ?"
 private const val sqlQueryGet = "select * from sold_properties where id = ?"
+private const val sqlQueryGetId = "SELECT CURRENT VALUE FOR public.default"
+

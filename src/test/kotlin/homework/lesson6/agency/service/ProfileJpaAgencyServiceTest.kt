@@ -72,7 +72,7 @@ class ProfileJpaAgencyServiceTest(
         }
         feature("delete sold property from SoldPropertiesDao") {
             scenario("success") {
-                deleteSoldPropertyById(5) shouldBe propertyLeningrad
+                deleteSoldPropertyById(propertyLeningrad.id) shouldBe propertyLeningrad
                 getStatusDeleteSoldPropertyById(5) shouldBe badRequest
 
             }
@@ -123,19 +123,19 @@ class ProfileJpaAgencyServiceTest(
         .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
 
     private val propertyTula = Property(
-        1, "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
+        10, "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
     )
     private val propertyChelyabinsk = Property(
-        2, "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
+        20, "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
     )
     private val propertySmolensk = Property(
-        3, "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
+        30, "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
     )
     private val propertyArkhangelsk = Property(
-        4, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
+        40, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
     )
     private val propertyLeningrad = Property(
-        7, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
+        50, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
     )
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)

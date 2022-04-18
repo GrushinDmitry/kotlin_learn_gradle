@@ -28,4 +28,8 @@ class DevSoldPropertiesDao : SoldPropertiesDao {
             .toList()
 
     override fun get(id: Int): Property? = soldProperties[id]
+
+    override fun getId(): Int {
+        TODO("Not yet implemented")
+    }
 }

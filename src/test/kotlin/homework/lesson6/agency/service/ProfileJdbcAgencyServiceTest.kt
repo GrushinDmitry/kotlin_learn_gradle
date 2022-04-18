@@ -39,8 +39,9 @@ class ProfileJdbcAgencyServiceTest(
     init {
         feature("add property in SoldPropertiesDao") {
             scenario("success") {
-                addSoldProperty(AddSoldPropertyRequest(5)) shouldBe propertyLeningrad
-                getSoldProperty(5) shouldBe propertyLeningrad
+                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id)) shouldBe propertyLeningrad
+            println(getId())
+            // getSoldProperty(getId()) shouldBe propertyLeningradExpected
             }
             scenario("failure - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(100)) shouldBe badRequest
@@ -116,6 +117,8 @@ class ProfileJdbcAgencyServiceTest(
         "/soldProperty/{id}", id
     ).andReturn().response.status
 
+    fun getId(): Int = mockMvc.get("/soldProperty/get_id").readResponse()
+
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T = this
         .andExpect { status { isEqualTo(expectedStatus.value()) } }
         .andReturn().response.getContentAsString(Charsets.UTF_8)
@@ -139,5 +142,8 @@ class ProfileJdbcAgencyServiceTest(
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
+/*    var propertyLeningradExpected = Property(
+        getId(), propertyLeningrad.address, propertyLeningrad.area, propertyLeningrad.price
+    )*/
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
 }
