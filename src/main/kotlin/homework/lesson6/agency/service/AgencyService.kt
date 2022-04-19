@@ -20,8 +20,8 @@ class AgencyService(
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property {
         val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
             ?: propertyNotFound(addSoldPropertyRequest.id)
-        soldPropertiesDao.add(property)
-        return property
+        return soldPropertiesDao.add(property)
+       // return property
     }
 
     fun deleteSoldPropertyById(id: Int): Property = soldPropertiesDao.deleteById(id) ?: propertyNotFound(id)

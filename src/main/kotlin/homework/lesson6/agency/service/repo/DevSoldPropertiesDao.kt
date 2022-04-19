@@ -12,7 +12,7 @@ class DevSoldPropertiesDao : SoldPropertiesDao {
     private var counter = 0
 
     override fun add(property: Property): Property {
-        val newProperty=Property(++counter, property.address, property.area,property.price)
+        val newProperty = Property(++counter, property.address, property.area, property.price)
         soldProperties[counter] = newProperty
         return newProperty
     }
@@ -29,7 +29,5 @@ class DevSoldPropertiesDao : SoldPropertiesDao {
 
     override fun get(id: Int): Property? = soldProperties[id]
 
-    override fun getId(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getId(): Int = counter
 }

@@ -23,8 +23,7 @@ import org.springframework.test.web.servlet.*
 @AutoConfigureMockMvc
 @ActiveProfiles("jdbc")
 class ProfileJdbcAgencyServiceTest(
-    private val mockMvc: MockMvc,
-    private val objectMapper: ObjectMapper
+    private val mockMvc: MockMvc, private val objectMapper: ObjectMapper
 ) : FeatureSpec() {
 
     @MockkBean
@@ -39,28 +38,43 @@ class ProfileJdbcAgencyServiceTest(
     init {
         feature("add property in SoldPropertiesDao") {
             scenario("success") {
-                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id)) shouldBe propertyLeningrad
-            println(getId())
-            // getSoldProperty(getId()) shouldBe propertyLeningradExpected
+                val id = getId()
+                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id)) shouldBe getPropertyLeningradExpected(id + 1)
+                /* val nextId = getId()
+                 getSoldProperty(nextId) shouldBe getPropertyLeningradExpected(nextId)*/
             }
             scenario("failure - unknown property") {
-                getStatusAddSoldProperty(AddSoldPropertyRequest(100)) shouldBe badRequest
+                getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
             }
         }
         feature("get property from SoldPropertiesDao") {
             scenario("success") {
-                getSoldProperty(1) shouldBe propertyTula
-                getSoldProperty(4) shouldBe propertyArkhangelsk
+/*                val idTula = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
+                val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
+                val id = getId()
+                getSoldProperty(id - 1) shouldBe getPropertyTulaExpected(idTula)
+                getSoldProperty(id) shouldBe getPropertyArkhangelskExpected(idArkhangelsk)
+                deleteSoldPropertyById(id)
+                deleteSoldPropertyById(id - 1)*/
+                val id = getId()
+                getSoldProperty(id) shouldBe getPropertyLeningradExpected(id)
             }
             scenario("failure - unknown property") {
-                getStatusGetSoldProperty(100) shouldBe badRequest
+                val id = getId()
+                getStatusGetSoldProperty(id + 1) shouldBe badRequest
             }
         }
         feature("find sold property with pagination") {
             scenario("success:empty and noEmpty") {
+                val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
+                val idTula = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
+                val idSmolensk = addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)).id
+                val idSChelyabinsk = addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id)).id
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
-                findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(propertySmolensk)
-                findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(propertySmolensk, propertyArkhangelsk)
+                findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk))
+                findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(
+                    getPropertySmolenskExpected(idSmolensk), getPropertyArkhangelskExpected(idArkhangelsk)
+                )
             }
             scenario("failure - illegalArguments") {
                 getStatusFindSoldPropertyByPrice(0, 1, 1) shouldBe badRequest
@@ -71,21 +85,20 @@ class ProfileJdbcAgencyServiceTest(
         }
         feature("delete sold property from SoldPropertiesDao") {
             scenario("success") {
-                deleteSoldPropertyById(5) shouldBe propertyLeningrad
-                getStatusDeleteSoldPropertyById(5) shouldBe badRequest
-
+                val propertyExpected = getSoldProperty(getId())
+                deleteSoldPropertyById(getId()) shouldBe propertyExpected
+                getStatusDeleteSoldPropertyById(propertyExpected.id) shouldBe badRequest
             }
             scenario("failure - no such sold property") {
-                getStatusDeleteSoldPropertyById(100) shouldBe badRequest
+                getStatusDeleteSoldPropertyById(getId() + 1) shouldBe badRequest
             }
         }
     }
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property =
-        mockMvc.post("/soldProperty/sold") {
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-        }.readResponse()
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property = mockMvc.post("/soldProperty/sold") {
+        contentType = MediaType.APPLICATION_JSON
+        content = objectMapper.writeValueAsString(addSoldPropertyRequest)
+    }.readResponse()
 
     fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
         mockMvc.post("/soldProperty/sold") {
@@ -99,17 +112,13 @@ class ProfileJdbcAgencyServiceTest(
         "/soldProperty/{id}", id
     ).andReturn().response.status
 
-    fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> =
-        mockMvc.get(
-            "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}",
-            maxPrice, pageSize, pageNum
-        ).readResponse()
+    fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> = mockMvc.get(
+        "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}", maxPrice, pageSize, pageNum
+    ).readResponse()
 
-    fun getStatusFindSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): Int =
-        mockMvc.get(
-            "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}",
-            maxPrice, pageSize, pageNum
-        ).andReturn().response.status
+    fun getStatusFindSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): Int = mockMvc.get(
+        "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}", maxPrice, pageSize, pageNum
+    ).andReturn().response.status
 
     fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}", id).readResponse()
 
@@ -119,31 +128,48 @@ class ProfileJdbcAgencyServiceTest(
 
     fun getId(): Int = mockMvc.get("/soldProperty/get_id").readResponse()
 
-    private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T = this
-        .andExpect { status { isEqualTo(expectedStatus.value()) } }
-        .andReturn().response.getContentAsString(Charsets.UTF_8)
-        .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
+    private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
+        this.andExpect { status { isEqualTo(expectedStatus.value()) } }
+            .andReturn().response.getContentAsString(Charsets.UTF_8)
+            .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
 
     private val propertyTula = Property(
-        1, "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
+        10, "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
     )
     private val propertyChelyabinsk = Property(
-        2, "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
+        20, "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
     )
     private val propertySmolensk = Property(
-        3, "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
+        30, "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
     )
     private val propertyArkhangelsk = Property(
-        4, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
+        40, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
     )
     private val propertyLeningrad = Property(
-        5, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
+        50, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
     )
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
-/*    var propertyLeningradExpected = Property(
-        getId(), propertyLeningrad.address, propertyLeningrad.area, propertyLeningrad.price
-    )*/
+    fun getPropertyLeningradExpected(id: Int) = Property(
+        id, propertyLeningrad.address, propertyLeningrad.area, propertyLeningrad.price
+    )
+
+    fun getPropertyArkhangelskExpected(id: Int) = Property(
+        id, propertyArkhangelsk.address, propertyArkhangelsk.area, propertyArkhangelsk.price
+    )
+
+    fun getPropertySmolenskExpected(id: Int) = Property(
+        id, propertySmolensk.address, propertySmolensk.area, propertySmolensk.price
+    )
+
+    fun getPropertyChelyabinskExpected(id: Int) = Property(
+        id, propertyChelyabinsk.address, propertyChelyabinsk.area, propertyChelyabinsk.price
+    )
+
+    fun getPropertyTulaExpected(id: Int) = Property(
+        id, propertyTula.address, propertyTula.area, propertyTula.price
+    )
+
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
 }
