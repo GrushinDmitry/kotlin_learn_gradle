@@ -16,9 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.*
 
+@DirtiesContext
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("jpa")
@@ -62,10 +64,9 @@ class ProfileJpaAgencyServiceTest(
                 val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
                 val idTula = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
                 val idSmolensk = addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)).id
-                println(idSmolensk)
                 val idSChelyabinsk = addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id)).id
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
-                findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk+1))
+                findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk))
                 findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(
                     getPropertySmolenskExpected(idSmolensk), getPropertyArkhangelskExpected(idArkhangelsk)
                 )
