@@ -57,6 +57,14 @@ class ControllerExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @Profile("jpa")
+    fun handleNullPointerException(e: NullPointerException): Map<String, String> {
+        log.warn(e.message, e)
+        return response(e)
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleExceptionNotFound(e: HttpClientErrorException.NotFound): Map<String, String> {
         val pageNotFound = "The page was dragged by the kraken to the seabed"

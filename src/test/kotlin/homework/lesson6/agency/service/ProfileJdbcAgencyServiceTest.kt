@@ -38,10 +38,9 @@ class ProfileJdbcAgencyServiceTest(
     init {
         feature("add property in SoldPropertiesDao") {
             scenario("success") {
+                val propertyAdded = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
                 val id = getId()
-                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id)) shouldBe getPropertyLeningradExpected(id + 1)
-                /* val nextId = getId()
-                 getSoldProperty(nextId) shouldBe getPropertyLeningradExpected(nextId)*/
+                propertyAdded shouldBe getPropertyLeningradExpected(id)
             }
             scenario("failure - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
@@ -49,13 +48,6 @@ class ProfileJdbcAgencyServiceTest(
         }
         feature("get property from SoldPropertiesDao") {
             scenario("success") {
-/*                val idTula = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
-                val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
-                val id = getId()
-                getSoldProperty(id - 1) shouldBe getPropertyTulaExpected(idTula)
-                getSoldProperty(id) shouldBe getPropertyArkhangelskExpected(idArkhangelsk)
-                deleteSoldPropertyById(id)
-                deleteSoldPropertyById(id - 1)*/
                 val id = getId()
                 getSoldProperty(id) shouldBe getPropertyLeningradExpected(id)
             }
@@ -80,17 +72,18 @@ class ProfileJdbcAgencyServiceTest(
                 getStatusFindSoldPropertyByPrice(0, 1, 1) shouldBe badRequest
                 getStatusFindSoldPropertyByPrice(1, 0, 1) shouldBe badRequest
                 getStatusFindSoldPropertyByPrice(1, 1, 0) shouldBe badRequest
-
             }
         }
         feature("delete sold property from SoldPropertiesDao") {
             scenario("success") {
-                val propertyExpected = getSoldProperty(getId())
+                val id = getId()
+                val propertyExpected = getSoldProperty(id)
                 deleteSoldPropertyById(getId()) shouldBe propertyExpected
                 getStatusDeleteSoldPropertyById(propertyExpected.id) shouldBe badRequest
             }
             scenario("failure - no such sold property") {
-                getStatusDeleteSoldPropertyById(getId() + 1) shouldBe badRequest
+                val id = getId()
+                getStatusDeleteSoldPropertyById(id + 1) shouldBe badRequest
             }
         }
     }
@@ -127,6 +120,8 @@ class ProfileJdbcAgencyServiceTest(
     ).andReturn().response.status
 
     fun getId(): Int = mockMvc.get("/soldProperty/get_id").readResponse()
+
+    fun getStatusGetId(): Int = mockMvc.get("/soldProperty/get_id").andReturn().response.status
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }

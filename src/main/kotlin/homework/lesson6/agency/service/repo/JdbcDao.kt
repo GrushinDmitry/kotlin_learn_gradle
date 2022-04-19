@@ -52,5 +52,6 @@ private const val sqlQueryAdd = "insert into sold_properties (address, area, pri
 private const val sqlQueryDelete = "delete from sold_properties where id = ?"
 private const val sqlQueryFind = "select * from sold_properties where price < ? order by price limit ? offset ?"
 private const val sqlQueryGet = "select * from sold_properties where id = ?"
-private const val sqlQueryGetId = "SELECT TOP 1 ID FROM sold_properties ORDER BY ID DESC"//"SELECT max('id') FROM sold_properties"//"SELECT CURRENT VALUE FOR public.default"
+private const val sqlQueryGetId = "SELECT TOP 1 ID FROM sold_properties ORDER BY ID DESC"
+
 

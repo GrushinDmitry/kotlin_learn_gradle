@@ -15,7 +15,7 @@
             )
         </sql>
     </changeSet>
-    <changeSet author="Dmitry" id="initialize">
+<!--    <changeSet author="Dmitry" id="initialize">
         <sql>
             insert into sold_properties (address, area, price) values
             ('Рязанская обл., г. Ступино, въезд Космонавтов, 97', 32, 1300500),
@@ -23,5 +23,5 @@
             ('Московская область, г. Зарайск, пер. Ленина, 64', 15, 5000500),
             ('Волгоградская область, город Волгоград, пер. Чехова, 53', 17, 9000500);
         </sql>
-    </changeSet>
+    </changeSet>-->
 </databaseChangeLog>
