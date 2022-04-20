@@ -12,7 +12,6 @@ private class JpaDao(private val repository: JpaSoldPropertiesRepository) : Sold
 
     override fun add(property: Property): Property = repository.saveAndFlush(property)
 
-
     override fun deleteById(id: Int): Property? {
         val propertyDeleted = repository.getById(id)
         repository.deleteById(id)

@@ -7,7 +7,6 @@ import org.springframework.web.client.HttpClientErrorException.NotFound
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 
-
 @Service
 class PropertiesClient(
     private val restTemplate: RestTemplate,

@@ -19,12 +19,11 @@ import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.*
+import kotlin.random.Random
 
-@DirtiesContext
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("jdbc")
-class ProfileJdbcAgencyServiceTest(
+abstract class ApplicationTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper
 ) : FeatureSpec() {
 
@@ -38,17 +37,20 @@ class ProfileJdbcAgencyServiceTest(
     }
 
     init {
-        feature("add property in SoldPropertiesDao") {
+        feature("add property in SoldPropertiesDao and get current id") {
+            scenario("failure getting - empty database") {
+                getStatusGetId() shouldBe badRequest
+            }
             scenario("success") {
                 val propertyAdded = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
                 val id = getId()
                 propertyAdded shouldBe getPropertyLeningradExpected(id)
             }
-            scenario("failure - unknown property") {
+            scenario("failure adding - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
             }
         }
-        feature("get property from SoldPropertiesDao") {
+        feature("get property from SoldPropertiesDao and get current id") {
             scenario("success") {
                 val id = getId()
                 getSoldProperty(id) shouldBe getPropertyLeningradExpected(id)
@@ -61,9 +63,9 @@ class ProfileJdbcAgencyServiceTest(
         feature("find sold property with pagination") {
             scenario("success:empty and noEmpty") {
                 val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
-                val idTula = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
                 val idSmolensk = addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)).id
-                val idSChelyabinsk = addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id)).id
+                addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id)).id
+                addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
                 findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk))
                 findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(
@@ -76,7 +78,7 @@ class ProfileJdbcAgencyServiceTest(
                 getStatusFindSoldPropertyByPrice(1, 1, 0) shouldBe badRequest
             }
         }
-        feature("delete sold property from SoldPropertiesDao") {
+        feature("delete sold property from SoldPropertiesDao and get current id") {
             scenario("success") {
                 val id = getId()
                 val propertyExpected = getSoldProperty(id)
@@ -131,19 +133,19 @@ class ProfileJdbcAgencyServiceTest(
             .let { if (T::class == String::class) it as T else objectMapper.readValue(it) }
 
     private val propertyTula = Property(
-        10, "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
+        Random.nextInt(1000), "Тульская обл., г. Ступино, въезд Космонавтов, 97", 32, 1000500
     )
     private val propertyChelyabinsk = Property(
-        20, "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
+        Random.nextInt(1000), "Челябинская область, город Истра, Гоголевский бульвар, 96", 55, 1500500
     )
     private val propertySmolensk = Property(
-        30, "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
+        Random.nextInt(1000), "Смоленская область, г. Зарайск, пер. Ленина, 64", 15, 500500
     )
     private val propertyArkhangelsk = Property(
-        40, "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
+        Random.nextInt(1000), "Архангельская область, город Шатура, пер. Чехова, 53", 17, 900500
     )
     private val propertyLeningrad = Property(
-        50, "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
+        Random.nextInt(1000), "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
     )
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
@@ -160,13 +162,15 @@ class ProfileJdbcAgencyServiceTest(
         id, propertySmolensk.address, propertySmolensk.area, propertySmolensk.price
     )
 
-    fun getPropertyChelyabinskExpected(id: Int) = Property(
-        id, propertyChelyabinsk.address, propertyChelyabinsk.area, propertyChelyabinsk.price
-    )
-
-    fun getPropertyTulaExpected(id: Int) = Property(
-        id, propertyTula.address, propertyTula.area, propertyTula.price
-    )
-
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
 }
+
+@DirtiesContext
+@ActiveProfiles("jpa")
+class ProfileJpaAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
+    ApplicationTest(mockMvc, objectMapper)
+
+@DirtiesContext
+@ActiveProfiles("jdbc")
+class ProfileJdbcAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
+    ApplicationTest(mockMvc, objectMapper)
