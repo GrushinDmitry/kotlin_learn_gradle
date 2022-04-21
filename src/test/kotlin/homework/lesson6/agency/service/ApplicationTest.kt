@@ -155,16 +155,17 @@ abstract class ApplicationTest(
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
 }
 
-@DirtiesContext
 @ActiveProfiles("jpa")
+@DirtiesContext
 class ProfileJpaAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
     ApplicationTest(mockMvc, objectMapper)
 
-@DirtiesContext
 @ActiveProfiles("jdbc")
+@DirtiesContext
 class ProfileJdbcAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
     ApplicationTest(mockMvc, objectMapper)
 
+@ActiveProfiles("test")
 @DirtiesContext
 class ProfileTestAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
     ApplicationTest(mockMvc, objectMapper)
