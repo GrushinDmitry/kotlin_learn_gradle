@@ -24,43 +24,35 @@ class ControllerExceptionHandler {
         return response(e)
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @Profile("jpa")
-    fun handleEntityNotFoundException(e: EntityNotFoundException): Map<String, String> {
+    @ExceptionHandler(JpaObjectRetrievalFailureException::class, EntityNotFoundException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleJpaBadRequest(e: Exception): Map<String, String> {
         log.warn(e.message, e)
         return response(e)
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @Profile("jdbc")
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleDataAccessException(e: DataAccessException): Map<String, String> {
-        log.warn(e.message, e)
+        log.error(e.message, e)
         return response(e)
     }
 
+    @Profile("jdbc")
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @Profile("jdbc")
     fun handleEmptyResultDataAccessException(e: EmptyResultDataAccessException): Map<String, String> {
         log.warn(e.message, e)
         return response(e)
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @Profile("jpa")
-    fun handleJpaObjectRetrievalFailureException(e: JpaObjectRetrievalFailureException): Map<String, String> {
-        log.warn(e.message, e)
-        return response(e)
-    }
-
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @Profile("jpa")
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleNullPointerException(e: NullPointerException): Map<String, String> {
-        log.warn(e.message, e)
+        log.error(e.message, e)
         return response(e)
     }
 

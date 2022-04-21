@@ -16,9 +16,6 @@ class SoldPropertyController(private val agencyService: AgencyService) {
     @GetMapping("/{id}")
     fun getSoldProperty(@PathVariable id: Int): Property = agencyService.getSoldProperty(id)
 
-    @GetMapping("/get_id")
-    fun getId(): Int = agencyService.getId()
-
     @GetMapping("/find")
     fun findSoldPropertyByPrice(
         @RequestParam maxPrice: Int = 1000000,

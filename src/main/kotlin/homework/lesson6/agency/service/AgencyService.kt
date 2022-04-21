@@ -27,8 +27,6 @@ class AgencyService(
 
     fun getSoldProperty(id: Int): Property = soldPropertiesDao.get(id) ?: propertyNotFound(id)
 
-    fun getId(): Int = soldPropertiesDao.getId()
-
     private fun propertyNotFound(id: Int): Nothing =
         throw IllegalArgumentException("The property with id: $id not found")
 }

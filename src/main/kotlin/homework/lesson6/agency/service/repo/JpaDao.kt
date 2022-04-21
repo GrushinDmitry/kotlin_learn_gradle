@@ -23,8 +23,5 @@ private class JpaDao(private val repository: JpaSoldPropertiesRepository) : Sold
             .content.filter { it.price < priceMax }
 
     override fun get(id: Int): Property? = repository.getById(id)
-
-    override fun getId(): Int = repository.getId()!!
-
 }
 

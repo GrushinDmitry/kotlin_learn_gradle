@@ -29,6 +29,7 @@ abstract class ApplicationTest(
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
+    private var currentId: Int = 0
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
@@ -37,35 +38,30 @@ abstract class ApplicationTest(
     }
 
     init {
-        feature("add property in SoldPropertiesDao and get current id") {
-            scenario("failure getting - empty database") {
-                getStatusGetId() shouldBe badRequest
-            }
+        feature("add property in SoldPropertiesDao") {
             scenario("success") {
                 val propertyAdded = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
-                val id = getId()
-                propertyAdded shouldBe getPropertyLeningradExpected(id)
+                currentId = propertyAdded.id
+                propertyAdded shouldBe getPropertyLeningradExpected(currentId)
             }
             scenario("failure adding - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
             }
         }
-        feature("get property from SoldPropertiesDao and get current id") {
+        feature("get property from SoldPropertiesDao") {
             scenario("success") {
-                val id = getId()
-                getSoldProperty(id) shouldBe getPropertyLeningradExpected(id)
+                getSoldProperty(currentId) shouldBe getPropertyLeningradExpected(currentId)
             }
             scenario("failure - unknown property") {
-                val id = getId()
-                getStatusGetSoldProperty(id + 1) shouldBe badRequest
+                getStatusGetSoldProperty(currentId + 1) shouldBe badRequest
             }
         }
         feature("find sold property with pagination") {
             scenario("success:empty and noEmpty") {
                 val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
                 val idSmolensk = addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)).id
-                addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id)).id
-                addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
+                addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id))
+                currentId = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
                 findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
                 findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk))
                 findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(
@@ -78,16 +74,14 @@ abstract class ApplicationTest(
                 getStatusFindSoldPropertyByPrice(1, 1, 0) shouldBe badRequest
             }
         }
-        feature("delete sold property from SoldPropertiesDao and get current id") {
+        feature("delete sold property from SoldPropertiesDao") {
             scenario("success") {
-                val id = getId()
-                val propertyExpected = getSoldProperty(id)
-                deleteSoldPropertyById(getId()) shouldBe propertyExpected
+                val propertyExpected = getSoldProperty(currentId)
+                deleteSoldPropertyById(currentId) shouldBe propertyExpected
                 getStatusDeleteSoldPropertyById(propertyExpected.id) shouldBe badRequest
             }
             scenario("failure - no such sold property") {
-                val id = getId()
-                getStatusDeleteSoldPropertyById(id + 1) shouldBe badRequest
+                getStatusDeleteSoldPropertyById(currentId + 1) shouldBe badRequest
             }
         }
     }
@@ -122,10 +116,6 @@ abstract class ApplicationTest(
     fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete(
         "/soldProperty/{id}", id
     ).andReturn().response.status
-
-    fun getId(): Int = mockMvc.get("/soldProperty/get_id").readResponse()
-
-    fun getStatusGetId(): Int = mockMvc.get("/soldProperty/get_id").andReturn().response.status
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }
@@ -173,4 +163,8 @@ class ProfileJpaAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) 
 @DirtiesContext
 @ActiveProfiles("jdbc")
 class ProfileJdbcAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
+    ApplicationTest(mockMvc, objectMapper)
+
+@DirtiesContext
+class ProfileTestAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
     ApplicationTest(mockMvc, objectMapper)

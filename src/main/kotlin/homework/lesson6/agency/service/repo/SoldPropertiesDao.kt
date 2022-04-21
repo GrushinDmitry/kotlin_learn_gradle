@@ -11,6 +11,4 @@ interface SoldPropertiesDao {
     fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property>
 
     fun get(id: Int): Property?
-
-    fun getId(): Int
 }
