@@ -8,7 +8,7 @@
         <sql>
             create table sold_properties
             (
-            id int auto_increment primary key,
+            id identity primary key,
             address varchar(255) not null,
             area int not null,
             price int not null
