@@ -19,8 +19,7 @@ private class JpaDao(private val repository: JpaSoldPropertiesRepository) : Sold
     }
 
     override fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property> =
-        repository.findAll(PageRequest.of((pageNum - 1), pageSize, Sort.by("price")))
-            .content.filter { it.price < priceMax }
+        repository.findByPriceLessThan(priceMax, PageRequest.of((pageNum - 1), pageSize, Sort.by("price")))
 
     override fun get(id: Int): Property? = repository.getById(id)
 }
