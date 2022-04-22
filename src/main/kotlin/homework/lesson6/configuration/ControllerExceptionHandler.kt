@@ -2,7 +2,6 @@ package homework.lesson6.configuration
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
-import org.springframework.dao.DataAccessException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.http.HttpStatus
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
@@ -34,25 +33,9 @@ class ControllerExceptionHandler {
 
     @Profile("jdbc")
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleDataAccessException(e: DataAccessException): Map<String, String> {
-        log.error(e.message, e)
-        return response(e)
-    }
-
-    @Profile("jdbc")
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleEmptyResultDataAccessException(e: EmptyResultDataAccessException): Map<String, String> {
         log.warn(e.message, e)
-        return response(e)
-    }
-
-    @Profile("jpa")
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleNullPointerException(e: NullPointerException): Map<String, String> {
-        log.error(e.message, e)
         return response(e)
     }
 
