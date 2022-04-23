@@ -8,7 +8,7 @@ class ThreadPool(size: Int) : Executor {
 
     private val tasks = LinkedBlockingQueue<Runnable>()
     private val threads = LinkedList<WorkerThread>()
-    private val monitor=tasks as Object
+    private val monitor = tasks as Object
 
     init {
         if (size !in 1..maxSize) throw IllegalArgumentException("The size = $size not in the range of 1 to $maxSize")

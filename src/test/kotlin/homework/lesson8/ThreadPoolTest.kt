@@ -2,10 +2,14 @@ package homework.lesson8
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FeatureSpec
-import io.kotest.matchers.shouldBe
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.random.Random
 
+
 class ThreadPoolTest : FeatureSpec() {
+
+    private val threadPoolSpy = spyk(ThreadPool(8))
 
     init {
         feature("test init") {
@@ -16,46 +20,35 @@ class ThreadPoolTest : FeatureSpec() {
             feature("testing work") {
 
                 scenario("success execute after shutdown") {
-                    val repeatRandom = Random.nextInt(10)
                     val sizeThreadPoolRandom = 1 + Random.nextInt(7)
                     val threadPool = ThreadPool(sizeThreadPoolRandom)
 
                     threadPool.shutdown()
-                    val actualMap = getActualMap(repeatRandom, threadPool, 0)
+                    threadPool.execute { threadPoolSpy.shutdown() }
 
-                    val expectedMap = emptyMap<Int, Int>()
-                    actualMap shouldBe expectedMap
+                    verify(exactly = 0) { threadPoolSpy.shutdown() }
                 }
 
                 scenario("success shutdown after empty execute") {
                     val sizeThreadPoolRandom = 1 + Random.nextInt(7)
                     val threadPool = ThreadPool(sizeThreadPoolRandom)
-                    threadPool.execute { }
+
+                    threadPool.execute { threadPoolSpy.shutdown() }
                     threadPool.shutdown()
+
+                    verify(exactly = 1) { threadPoolSpy.shutdown() }
                 }
 
-                scenario("success threads>=tasks with sleep") {
+                scenario("success work") {
                     val sizeThreadPoolRandom = 1 + Random.nextInt(7)
-                    val valueForTasksLessOrEqualsThread = Random.nextInt(1)
-                    val valueTasks = sizeThreadPoolRandom - valueForTasksLessOrEqualsThread
+                    val valueTasks = Random.nextInt(15)
                     val threadPool = ThreadPool(sizeThreadPoolRandom)
 
-                    val actualMap = getActualMap(valueTasks, threadPool)
+                    repeat(valueTasks) {
+                        threadPool.execute { threadPoolSpy.shutdown() }
+                    }
 
-                    val expectedMap = getExpectedMap(valueTasks)
-                    actualMap shouldBe expectedMap
-                    threadPool.shutdown()
-                }
-
-                scenario("success threads<tasks with sleep") {
-                    val sizeThreadPoolRandom = 1 + Random.nextInt(7)
-                    val valueTasks = sizeThreadPoolRandom + 1
-                    val threadPool = ThreadPool(sizeThreadPoolRandom)
-
-                    val actualMap = getActualMap(valueTasks, threadPool)
-
-                    val expectedMap = getExpectedMap(valueTasks)
-                    actualMap shouldBe expectedMap
+                    verify(exactly = valueTasks + 1) { threadPoolSpy.shutdown() }
                     threadPool.shutdown()
                 }
             }
@@ -63,21 +56,3 @@ class ThreadPoolTest : FeatureSpec() {
     }
 }
 
-private fun getActualMap(valueRepeat: Int, threadPool: ThreadPool, timeSleep: Long = 1000): MutableMap<Int, Int> {
-    val actualMap = mutableMapOf<Int, Int>()
-    repeat(valueRepeat) {
-        threadPool.execute {
-            actualMap[it] = it
-        }
-        Thread.sleep(timeSleep)
-    }
-    return actualMap
-}
-
-private fun getExpectedMap(valueRepeat: Int): MutableMap<Int, Int> {
-    val expectedMap = mutableMapOf<Int, Int>()
-    repeat(valueRepeat) {
-        expectedMap[it] = it
-    }
-    return expectedMap
-}
