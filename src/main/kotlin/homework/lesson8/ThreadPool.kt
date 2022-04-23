@@ -8,11 +8,10 @@ class ThreadPool(size: Int) : Executor {
 
     private val tasks = LinkedBlockingQueue<Runnable>()
     private val threads = LinkedList<WorkerThread>()
+    private val monitor=tasks as Object
 
     init {
-        if (size !in 1..maxSize) throw IllegalArgumentException(
-            "The size = $size not in the range of 1 to $maxSize"
-        )
+        if (size !in 1..maxSize) throw IllegalArgumentException("The size = $size not in the range of 1 to $maxSize")
         repeat(size) {
             val workerThread = WorkerThread()
             threads.offer(workerThread)
@@ -23,32 +22,36 @@ class ThreadPool(size: Int) : Executor {
     override fun execute(command: Runnable) {
         synchronized(tasks) {
             tasks.offer(command)
-            (tasks as Object).notify()
+            monitor.notify()
         }
     }
 
     fun shutdown() {
-        threads.forEach { it.interrupt(); it.isRunning = false }
+        threads.forEach { it.interrupt(); it.cancel() }
     }
 
     private inner class WorkerThread : Thread() {
-        @Volatile
-        var isRunning = true
-        private var task: Runnable? = null
+        private var isRunning = true
         override fun run() {
+            var task: Runnable?
             while (isRunning) {
                 synchronized(tasks) {
                     if (tasks.isEmpty()) {
                         try {
-                            (tasks as Object).wait()
+                            monitor.wait()
                         } catch (e: InterruptedException) {
                             isRunning = false
                         }
                     }
                     task = tasks.poll()
                 }
-                if (task != null) task!!.run()
+                task?.run()
             }
+        }
+
+        fun cancel() {
+            isRunning = false
+            interrupt()
         }
     }
 }
