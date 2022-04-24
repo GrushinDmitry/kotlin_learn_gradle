@@ -13,9 +13,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.2.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.1.0")
     testImplementation("io.mockk:mockk:1.12.3")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 tasks.getByName<Test>("test") {

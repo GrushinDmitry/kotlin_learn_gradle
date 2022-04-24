@@ -9,6 +9,8 @@ class ThreadPool(size: Int) : Executor {
     private val tasks = LinkedBlockingQueue<Runnable>()
     private val threads = LinkedList<WorkerThread>()
     private val monitor = Object()
+    var isShutdown = false
+        private set
 
     init {
         if (size !in 1..maxSize) throw IllegalArgumentException("The size = $size not in the range of 1 to $maxSize")
@@ -20,6 +22,7 @@ class ThreadPool(size: Int) : Executor {
     }
 
     override fun execute(command: Runnable) {
+        check(!isShutdown) { "ThreadPool is shutdown" }
         synchronized(monitor) {
             tasks.offer(command)
             monitor.notify()
@@ -27,11 +30,13 @@ class ThreadPool(size: Int) : Executor {
     }
 
     fun shutdown() {
+        isShutdown = true
         threads.forEach { it.cancel() }
     }
 
     private inner class WorkerThread : Thread() {
         private var isRunning = true
+
         override fun run() {
             while (isRunning) {
                 val task: Runnable?
@@ -45,7 +50,11 @@ class ThreadPool(size: Int) : Executor {
                     }
                     task = tasks.poll()
                 }
-                task?.run()
+                try {
+                    task?.run()
+                } catch (e: RuntimeException) {
+                    println("Thread pool is interrupted due to an issue: " + e.localizedMessage)
+                }
             }
         }
 
