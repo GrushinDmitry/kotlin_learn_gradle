@@ -8,17 +8,18 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.delay
 import java.lang.Thread.sleep
 import kotlin.random.Random
 
 class ThreadPoolTest : FeatureSpec() {
 
-    private val mockJob = mockk<Runnable> {
-        every { run() } answers { sleep(200) }
+    private val mockJob = mockk<Runnable>()
+    override fun beforeEach(testCase: TestCase) {
+        every { mockJob.run() } answers { sleep(200) }
     }
 
-
-    override fun afterAny(testCase: TestCase, result: TestResult) {
+    override fun afterEach(testCase: TestCase, result: TestResult) {
         clearAllMocks()
     }
 
@@ -40,7 +41,7 @@ class ThreadPoolTest : FeatureSpec() {
                 verify(exactly = 0) { mockJob.run() }
             }
             scenario("job executed before shutdown") {
-                val sizeThreadPoolRandom = 1//1 + Random.nextInt(7)
+                val sizeThreadPoolRandom = 1 + Random.nextInt(7)
                 val threadPool = ThreadPool(sizeThreadPoolRandom)
 
                 threadPool.execute(mockJob)
@@ -56,7 +57,8 @@ class ThreadPoolTest : FeatureSpec() {
                 repeat(valueTasks) {
                     threadPool.execute(mockJob)
                 }
-
+                verify(exactly = 8) { mockJob.run() }
+                delay(1000)
                 verify(exactly = valueTasks) { mockJob.run() }
             }
         }

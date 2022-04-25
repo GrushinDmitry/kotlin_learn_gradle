@@ -51,7 +51,10 @@ class ThreadPool(size: Int) : Executor {
                     task = tasks.poll()
                 }
                 try {
-                    task?.run()
+                    task?.let {
+                        println(it.javaClass)
+                        it.run()
+                    }
                 } catch (e: RuntimeException) {
                     println("Thread pool is interrupted due to an issue: " + e.localizedMessage)
                 }
