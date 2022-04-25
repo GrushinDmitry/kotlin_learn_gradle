@@ -14,9 +14,10 @@ import kotlin.random.Random
 
 class ThreadPoolTest : FeatureSpec() {
 
-    private val mockJob = mockk<Runnable>()
+    private val mockTask = mockk<Runnable>()
+
     override fun beforeEach(testCase: TestCase) {
-        every { mockJob.run() } answers { sleep(200) }
+        every { mockTask.run() } answers { sleep(200) }
     }
 
     override fun afterEach(testCase: TestCase, result: TestResult) {
@@ -32,34 +33,36 @@ class ThreadPoolTest : FeatureSpec() {
         }
         feature("testing work") {
             scenario("job not executed after shutdown") {
-                val sizeThreadPoolRandom = 1 + Random.nextInt(7)
-                val threadPool = ThreadPool(sizeThreadPoolRandom)
+                val threadPoolSizeRandom = 1 + Random.nextInt(7)
+                val threadPool = ThreadPool(threadPoolSizeRandom)
 
                 threadPool.shutdown()
-                shouldThrow<IllegalStateException> { threadPool.execute(mockJob) }
+                shouldThrow<IllegalStateException> { threadPool.execute(mockTask) }
 
-                verify(exactly = 0) { mockJob.run() }
+                verify(exactly = 0) { mockTask.run() }
             }
             scenario("job executed before shutdown") {
-                val sizeThreadPoolRandom = 1 + Random.nextInt(7)
-                val threadPool = ThreadPool(sizeThreadPoolRandom)
+                val threadPoolSizeRandom = 1 + Random.nextInt(7)
+                val threadPool = ThreadPool(threadPoolSizeRandom)
 
-                threadPool.execute(mockJob)
-                sleep(500)
+                threadPool.execute(mockTask)
+                delay(500)
                 threadPool.shutdown()
-                verify(exactly = 1) { mockJob.run() }
+
+                verify(exactly = 1) { mockTask.run() }
             }
             scenario("success work") {
-                val sizeThreadPoolRandom = 8
-                val valueTasks = 16
-                val threadPool = ThreadPool(sizeThreadPoolRandom)
+                val threadPoolSize = 8
+                val taskCount = 16
+                val threadPool = ThreadPool(threadPoolSize)
 
-                repeat(valueTasks) {
-                    threadPool.execute(mockJob)
+                repeat(taskCount) {
+                    threadPool.execute(mockTask)
                 }
-                verify(exactly = 8) { mockJob.run() }
+
+                verify(exactly = threadPoolSize) { mockTask.run() }
                 delay(1000)
-                verify(exactly = valueTasks) { mockJob.run() }
+                verify(exactly = taskCount) { mockTask.run() }
             }
         }
     }
