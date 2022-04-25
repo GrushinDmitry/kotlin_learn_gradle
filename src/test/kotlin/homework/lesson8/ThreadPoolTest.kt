@@ -11,7 +11,7 @@ import kotlin.random.Random
 
 class ThreadPoolTest : FeatureSpec() {
 
-    private val mockJob = mockk<Runnable>(relaxed = true)
+    private val mockJob = mockk<() -> Runnable>(relaxed = true)
 
 
     override fun afterAny(testCase: TestCase, result: TestResult) {
@@ -32,17 +32,17 @@ class ThreadPoolTest : FeatureSpec() {
 
                 threadPool.shutdown()
 
-                shouldThrow<IllegalStateException> { threadPool.execute { mockJob.run() } }
-                verify(exactly = 0) { mockJob.run() }
+                shouldThrow<IllegalStateException> { threadPool.execute { mockJob() } }
+                verify(exactly = 0) { mockJob() }
             }
             scenario("job executed before shutdown") {
                 val sizeThreadPoolRandom = 1 + Random.nextInt(7)
                 val threadPool = ThreadPool(sizeThreadPoolRandom)
 
-                threadPool.execute { mockJob.run() }
+                threadPool.execute { mockJob() }
                 threadPool.shutdown()
 
-                verify(exactly = 1) { mockJob.run() }
+                verify(exactly = 1) { mockJob() }
             }
             scenario("success work") {
                 val sizeThreadPoolRandom = 1 + Random.nextInt(7)
@@ -50,10 +50,10 @@ class ThreadPoolTest : FeatureSpec() {
                 val threadPool = ThreadPool(sizeThreadPoolRandom)
 
                 repeat(valueTasks) {
-                    threadPool.execute { mockJob.run() }
+                    threadPool.execute { mockJob() }
                 }
 
-                verify(exactly = valueTasks) { mockJob.run() }
+                verify(exactly = valueTasks) { mockJob() }
                 threadPool.shutdown()
             }
         }
