@@ -21,10 +21,10 @@ class ThreadPool(size: Int) : Executor {
         }
     }
 
-    override fun execute(command: Runnable) {
+    override fun execute(task: Runnable) {
         check(!isShutdown) { "ThreadPool is shutdown" }
         synchronized(monitor) {
-            tasks.offer(command)
+            tasks.offer(task)
             monitor.notify()
         }
     }
