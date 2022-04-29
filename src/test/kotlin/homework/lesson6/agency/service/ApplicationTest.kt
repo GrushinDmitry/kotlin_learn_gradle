@@ -11,19 +11,21 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
-import io.mockk.every
+import io.mockk.coEvery
+import kotlinx.coroutines.delay
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.*
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActionsDsl
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import kotlin.random.Random
 
 @SpringBootTest
 @AutoConfigureMockMvc
-abstract class ApplicationTest(
+class ApplicationTest(
     private val mockMvc: MockMvc, private val objectMapper: ObjectMapper
 ) : FeatureSpec() {
 
@@ -33,16 +35,16 @@ abstract class ApplicationTest(
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
-    override fun beforeEach(testCase: TestCase) {
-        every { propertiesClient.getProperty(any()) } answers { properties.find { it.id == firstArg() } }
+    override fun beforeTest(testCase: TestCase) {
+        coEvery { propertiesClient.getProperty(any()) } answers { properties.find { it.id == firstArg() } }
     }
 
     init {
         feature("add property in SoldPropertiesDao") {
             scenario("success") {
-                val propertyAdded = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
-                currentId = propertyAdded.id
-                propertyAdded shouldBe getPropertyLeningradExpected(currentId)
+                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
+                delay(1000)
+                getStatusAddSoldProperty(AddSoldPropertyRequest(++currentId)) shouldBe okRequest
             }
             scenario("failure adding - unknown property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
@@ -56,40 +58,14 @@ abstract class ApplicationTest(
                 getStatusGetSoldProperty(currentId + 1) shouldBe badRequest
             }
         }
-        feature("find sold property with pagination") {
-            scenario("success:empty and noEmpty") {
-                val idArkhangelsk = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).id
-                val idSmolensk = addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)).id
-                addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id))
-                currentId = addSoldProperty(AddSoldPropertyRequest(propertyTula.id)).id
-                findSoldPropertyByPrice(500499, 1, 1) shouldBe emptyList()
-                findSoldPropertyByPrice(500550, 1, 1) shouldBe listOf(getPropertySmolenskExpected(idSmolensk))
-                findSoldPropertyByPrice(1000000, 1, 2) shouldBe listOf(
-                    getPropertySmolenskExpected(idSmolensk), getPropertyArkhangelskExpected(idArkhangelsk)
-                )
-            }
-            scenario("failure - illegalArguments") {
-                getStatusFindSoldPropertyByPrice(0, 1, 1) shouldBe badRequest
-                getStatusFindSoldPropertyByPrice(1, 0, 1) shouldBe badRequest
-                getStatusFindSoldPropertyByPrice(1, 1, 0) shouldBe badRequest
-            }
-        }
-        feature("delete sold property from SoldPropertiesDao") {
-            scenario("success") {
-                val propertyExpected = getSoldProperty(currentId)
-                deleteSoldPropertyById(currentId) shouldBe propertyExpected
-                getStatusDeleteSoldPropertyById(propertyExpected.id) shouldBe badRequest
-            }
-            scenario("failure - no such sold property") {
-                getStatusDeleteSoldPropertyById(currentId + 1) shouldBe badRequest
-            }
-        }
+
     }
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property = mockMvc.post("/soldProperty/sold") {
+
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
         contentType = MediaType.APPLICATION_JSON
         content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-    }.readResponse()
+    }
 
     fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
         mockMvc.post("/soldProperty/sold") {
@@ -100,20 +76,6 @@ abstract class ApplicationTest(
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
     fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get(
-        "/soldProperty/{id}", id
-    ).andReturn().response.status
-
-    fun findSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> = mockMvc.get(
-        "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}", maxPrice, pageSize, pageNum
-    ).readResponse()
-
-    fun getStatusFindSoldPropertyByPrice(maxPrice: Int, pageNum: Int, pageSize: Int): Int = mockMvc.get(
-        "/soldProperty/find?maxPrice={maxPrice}&pageSize={pageSize}&pageNum={pageNum}", maxPrice, pageSize, pageNum
-    ).andReturn().response.status
-
-    fun deleteSoldPropertyById(id: Int): Property = mockMvc.delete("/soldProperty/{id}", id).readResponse()
-
-    fun getStatusDeleteSoldPropertyById(id: Int): Int = mockMvc.delete(
         "/soldProperty/{id}", id
     ).andReturn().response.status
 
@@ -153,19 +115,6 @@ abstract class ApplicationTest(
     )
 
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
+    private val okRequest: Int = HttpStatus.OK.value()
 }
 
-@ActiveProfiles("jpa")
-@DirtiesContext
-class ProfileJpaAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
-    ApplicationTest(mockMvc, objectMapper)
-
-@ActiveProfiles("jdbc")
-@DirtiesContext
-class ProfileJdbcAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
-    ApplicationTest(mockMvc, objectMapper)
-
-@ActiveProfiles("test")
-@DirtiesContext
-class ProfileTestAgencyServiceTest(mockMvc: MockMvc, objectMapper: ObjectMapper) :
-    ApplicationTest(mockMvc, objectMapper)

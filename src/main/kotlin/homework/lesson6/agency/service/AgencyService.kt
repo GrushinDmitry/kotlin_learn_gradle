@@ -4,6 +4,10 @@ import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.client.PropertiesClient
 import homework.lesson6.agency.service.repo.SoldPropertiesDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,22 +16,18 @@ class AgencyService(
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
 
-    fun findSoldPropertiesByMaxPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> {
-        require(maxPrice > 0 && pageNum > 0 && pageSize > 0) { "The arguments must be positive" }
-        return soldPropertiesDao.find(maxPrice, pageNum, pageSize)
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val id = addSoldPropertyRequest.id
+            val property = propertiesClient.getProperty(id) ?: propertyNotFound(id)
+            withContext(Dispatchers.IO) { soldPropertiesDao.add(property) }
+        }
     }
-
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Property {
-        val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
-            ?: propertyNotFound(addSoldPropertyRequest.id)
-        return soldPropertiesDao.add(property)
-    }
-
-    fun deleteSoldPropertyById(id: Int): Property = soldPropertiesDao.deleteById(id) ?: propertyNotFound(id)
 
     fun getSoldProperty(id: Int): Property = soldPropertiesDao.get(id) ?: propertyNotFound(id)
 
     private fun propertyNotFound(id: Int): Nothing =
         throw IllegalArgumentException("The property with id: $id not found")
+
 }
 

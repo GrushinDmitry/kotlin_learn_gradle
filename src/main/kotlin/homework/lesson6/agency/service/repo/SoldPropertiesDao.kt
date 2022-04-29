@@ -4,11 +4,7 @@ import homework.lesson6.agency.model.Property
 
 interface SoldPropertiesDao {
 
-    fun add(property: Property): Property
-
-    fun deleteById(id: Int): Property?
-
-    fun find(priceMax: Int, pageNum: Int, pageSize: Int): List<Property>
+    fun add(property: Property)
 
     fun get(id: Int): Property?
 }
