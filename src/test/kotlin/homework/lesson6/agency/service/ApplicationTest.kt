@@ -40,27 +40,35 @@ class ApplicationTest(
     }
 
     init {
-        feature("add property in SoldPropertiesDao") {
-            scenario("success") {
-                addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
-                delay(1000)
-                getStatusAddSoldProperty(AddSoldPropertyRequest(++currentId)) shouldBe okRequest
+        feature("add and get property with coroutine") {
+            scenario("correct http.status after the time to add property") {
+                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyLeningrad.id))
+                getStatusGetSoldProperty(currentId) shouldBe badRequest
+                delay(200)
+                getStatusGetSoldProperty(currentId) shouldBe okRequest
             }
-            scenario("failure adding - unknown property") {
-                getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe badRequest
+            scenario("immediately reports data ok") {
+                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyLeningrad.id))
+                getStatusAddSoldProperty(AddSoldPropertyRequest(currentId)) shouldBe okRequest
             }
-        }
-        feature("get property from SoldPropertiesDao") {
-            scenario("success") {
-                getSoldProperty(currentId) shouldBe getPropertyLeningradExpected(currentId)
+            scenario("reports data ok in the absence of property") {
+                getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequest
             }
-            scenario("failure - unknown property") {
+            scenario("correct entity out after the time to add property") {
+                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyArkhangelsk.id))
+                delay(200)
+                getSoldProperty(currentId) shouldBe getPropertyArkhangelskExpected(currentId)
+            }
+            scenario("http.status = bad because unknown property") {
                 getStatusGetSoldProperty(currentId + 1) shouldBe badRequest
             }
         }
-
     }
 
+    fun addPropertyWithIncrementId(addSoldPropertyRequest: AddSoldPropertyRequest) {
+        addSoldProperty(addSoldPropertyRequest)
+        currentId++
+    }
 
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
         contentType = MediaType.APPLICATION_JSON

@@ -19,8 +19,10 @@ class AgencyService(
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) {
         CoroutineScope(Dispatchers.Default).launch {
             val id = addSoldPropertyRequest.id
-            val property = propertiesClient.getProperty(id) ?: propertyNotFound(id)
-            withContext(Dispatchers.IO) { soldPropertiesDao.add(property) }
+            val property = propertiesClient.getProperty(id)
+            withContext(Dispatchers.IO) {
+                property?.let { soldPropertiesDao.add(it) }
+            }
         }
     }
 

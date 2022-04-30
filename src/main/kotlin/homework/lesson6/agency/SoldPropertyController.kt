@@ -13,7 +13,6 @@ class SoldPropertyController(private val agencyService: AgencyService) {
     fun addSoldProperty(@RequestBody addSoldPropertyRequest: AddSoldPropertyRequest) =
         agencyService.addSoldProperty(addSoldPropertyRequest)
 
-
     @GetMapping("/{id}")
     fun getSoldProperty(@PathVariable id: Int): Property = agencyService.getSoldProperty(id)
 }
