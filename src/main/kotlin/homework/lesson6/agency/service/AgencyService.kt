@@ -15,15 +15,19 @@ class AgencyService(
     private val propertiesClient: PropertiesClient,
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
+    var numberRequest: Int = 0
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) {
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int {
         CoroutineScope(Dispatchers.Default).launch {
             val id = addSoldPropertyRequest.id
             val property = propertiesClient.getProperty(id)
-            withContext(Dispatchers.IO) {
-                property?.let { soldPropertiesDao.add(it) }
+            property?.let {
+                withContext(Dispatchers.IO) {
+                    numberRequest = soldPropertiesDao.add(it)
+                }
             }
         }
+        return numberRequest
     }
 
     fun getSoldProperty(id: Int): Property = soldPropertiesDao.get(id) ?: propertyNotFound(id)

@@ -8,9 +8,8 @@ import org.springframework.stereotype.Service
 @Primary
 private class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
 
-    override fun add(property: Property) {
-        repository.saveAndFlush(property)
-    }
+    override fun add(property: Property): Int = repository.saveAndFlush(property).id
+
 
     override fun get(id: Int): Property? = repository.getById(id)
 }

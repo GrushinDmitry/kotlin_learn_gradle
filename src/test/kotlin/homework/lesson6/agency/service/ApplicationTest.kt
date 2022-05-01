@@ -31,7 +31,7 @@ class ApplicationTest(
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
-    private var currentId: Int = 0
+    private var currentId = 0
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
@@ -42,20 +42,19 @@ class ApplicationTest(
     init {
         feature("add and get property with coroutine") {
             scenario("correct http.status after the time to add property") {
-                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyLeningrad.id))
+                currentId = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))+1
                 getStatusGetSoldProperty(currentId) shouldBe badRequest
                 delay(200)
                 getStatusGetSoldProperty(currentId) shouldBe okRequest
             }
             scenario("immediately reports data ok") {
-                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyLeningrad.id))
-                getStatusAddSoldProperty(AddSoldPropertyRequest(currentId)) shouldBe okRequest
+                getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequest
             }
             scenario("reports data ok in the absence of property") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequest
             }
             scenario("correct entity out after the time to add property") {
-                addPropertyWithIncrementId(AddSoldPropertyRequest(propertyArkhangelsk.id))
+                currentId = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))+1
                 delay(200)
                 getSoldProperty(currentId) shouldBe getPropertyArkhangelskExpected(currentId)
             }
@@ -65,21 +64,17 @@ class ApplicationTest(
         }
     }
 
-    fun addPropertyWithIncrementId(addSoldPropertyRequest: AddSoldPropertyRequest) {
-        addSoldProperty(addSoldPropertyRequest)
-        currentId++
-    }
-
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
         contentType = MediaType.APPLICATION_JSON
         content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-    }
+    }.readResponse<Int>()
 
     fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
         mockMvc.post("/soldProperty/sold") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(addSoldPropertyRequest)
         }.andReturn().response.status
+
 
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
