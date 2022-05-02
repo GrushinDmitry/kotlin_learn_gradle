@@ -31,7 +31,7 @@ class ApplicationTest(
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
-    private var currentId = 0
+    private var numberRequest = 0
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
@@ -42,10 +42,11 @@ class ApplicationTest(
     init {
         feature("add and get property with coroutine") {
             scenario("correct http.status after the time to add property") {
-                currentId = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))+1
-                getStatusGetSoldProperty(currentId) shouldBe badRequest
+                numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
+
+                getStatusGetSoldProperty(numberRequest) shouldBe badRequest
                 delay(200)
-                getStatusGetSoldProperty(currentId) shouldBe okRequest
+                getStatusGetSoldProperty(numberRequest) shouldBe okRequest
             }
             scenario("immediately reports data ok") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequest
@@ -54,12 +55,14 @@ class ApplicationTest(
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequest
             }
             scenario("correct entity out after the time to add property") {
-                currentId = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))+1
+                numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))
                 delay(200)
-                getSoldProperty(currentId) shouldBe getPropertyArkhangelskExpected(currentId)
+                val idSoldProperties = getSoldProperty(numberRequest).id
+
+                getSoldProperty(numberRequest) shouldBe getPropertyArkhangelskExpected(idSoldProperties)
             }
             scenario("http.status = bad because unknown property") {
-                getStatusGetSoldProperty(currentId + 1) shouldBe badRequest
+                getStatusGetSoldProperty(numberRequest + 1) shouldBe badRequest
             }
         }
     }
@@ -75,12 +78,15 @@ class ApplicationTest(
             content = objectMapper.writeValueAsString(addSoldPropertyRequest)
         }.andReturn().response.status
 
-
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
     fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get(
         "/soldProperty/{id}", id
     ).andReturn().response.status
+
+    fun getMessageGetSoldProperty(id: Int): String? = mockMvc.get(
+        "/soldProperty/{id}", id
+    ).andReturn().response.errorMessage
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }
@@ -119,5 +125,6 @@ class ApplicationTest(
 
     private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
     private val okRequest: Int = HttpStatus.OK.value()
+    private val badRequestAddingPhrase: String = HttpStatus.BAD_REQUEST.reasonPhrase
 }
 
