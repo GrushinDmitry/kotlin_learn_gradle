@@ -32,8 +32,9 @@ class AgencyService(
         return numberRequest
     }
 
-    fun getSoldProperty(numberRequest: Int): Property {
-        val id = matchingIdWithNumber[numberRequest] ?: throw AddingInSoldPropertiesException("Adding in sold properties failed")
-        return soldPropertiesDao.get(id) ?: throw IllegalArgumentException("The property with id: $id not found")
+    fun getSoldProperty(number: Int): Property {
+        if (number > numberRequest || number < 1) throw IllegalArgumentException("The request for number: $number not found")
+        val id = matchingIdWithNumber[number] ?: throw AddingInSoldPropertiesException("Adding in sold properties failed")
+        return soldPropertiesDao.get(id)!!
     }
 }

@@ -41,28 +41,35 @@ class ApplicationTest(
 
     init {
         feature("add and get property with coroutine") {
-            scenario("correct http.status after the time to add property") {
+            scenario("http.status = ok after the time to add property") {
                 numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
 
-                getStatusGetSoldProperty(numberRequest) shouldBe badRequest
+                getMessageGetSoldProperty(numberRequest) shouldBe failAddingExpected
+                getStatusGetSoldProperty(numberRequest) shouldBe badRequestExpected
                 delay(200)
-                getStatusGetSoldProperty(numberRequest) shouldBe okRequest
+                getStatusGetSoldProperty(numberRequest) shouldBe okRequestExpected
             }
             scenario("immediately reports data ok") {
-                getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequest
+                getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequestExpected
             }
             scenario("reports data ok in the absence of property") {
-                getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequest
+                getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequestExpected
             }
             scenario("correct entity out after the time to add property") {
                 numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))
                 delay(200)
-                val idSoldProperties = getSoldProperty(numberRequest).id
+                val idExpected = getSoldProperty(numberRequest).id
 
-                getSoldProperty(numberRequest) shouldBe getPropertyArkhangelskExpected(idSoldProperties)
+                getSoldProperty(numberRequest) shouldBe getPropertyArkhangelskExpected(idExpected)
             }
             scenario("http.status = bad because unknown property") {
-                getStatusGetSoldProperty(numberRequest + 1) shouldBe badRequest
+                val incorrectNumberRequest = numberRequest + 1
+
+                getMessageGetSoldProperty(incorrectNumberRequest) shouldBe getFailGettingExpected(incorrectNumberRequest)
+                getStatusGetSoldProperty(incorrectNumberRequest) shouldBe badRequestExpected
+            }
+            scenario("http.status = ok for getting first number") {
+                getStatusGetSoldProperty(1) shouldBe okRequestExpected
             }
         }
     }
@@ -86,7 +93,7 @@ class ApplicationTest(
 
     fun getMessageGetSoldProperty(id: Int): String? = mockMvc.get(
         "/soldProperty/{id}", id
-    ).andReturn().response.errorMessage
+    ).andReturn().resolvedException?.message
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }
@@ -108,6 +115,7 @@ class ApplicationTest(
     private val propertyLeningrad = Property(
         Random.nextInt(1000), "Ленинградская область, город Дорохово, наб. Гагарина, 18", 1000, 110000000
     )
+
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
@@ -123,8 +131,10 @@ class ApplicationTest(
         id, propertySmolensk.address, propertySmolensk.area, propertySmolensk.price
     )
 
-    private val badRequest: Int = HttpStatus.BAD_REQUEST.value()
-    private val okRequest: Int = HttpStatus.OK.value()
-    private val badRequestAddingPhrase: String = HttpStatus.BAD_REQUEST.reasonPhrase
+    fun getFailGettingExpected(number: Int) = "The request for number: $number not found"
+
+    val badRequestExpected: Int = HttpStatus.BAD_REQUEST.value()
+    private val okRequestExpected: Int = HttpStatus.OK.value()
+    private val failAddingExpected: String = "Adding in sold properties failed"
 }
 
