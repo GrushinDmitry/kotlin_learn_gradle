@@ -9,7 +9,8 @@ import java.time.temporal.ChronoUnit
 @ConstructorBinding
 @ConfigurationProperties
 data class ClientConfig(
-    val connectTimeoutInMillis: Int,
     @DurationUnit(ChronoUnit.SECONDS)
-    val responseTimeoutInSeconds: Duration
+    val connectTimeoutInSeconds: Duration,
+    @DurationUnit(ChronoUnit.SECONDS)
+    val readTimeoutInSeconds: Duration
 )

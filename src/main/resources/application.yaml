@@ -23,6 +23,7 @@ server.port: 9000
 
 properties.address: http://localhost:9001
 
-connectTimeoutInMillis:  10000
-responseTimeoutInSeconds: 6
+connectTimeoutInSeconds: 30
+readTimeoutInSeconds: 60
+
 
