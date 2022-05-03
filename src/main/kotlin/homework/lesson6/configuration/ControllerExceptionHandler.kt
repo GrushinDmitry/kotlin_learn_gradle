@@ -1,14 +1,11 @@
 package homework.lesson6.configuration
 
-import homework.lesson6.agency.service.AddingInSoldPropertiesException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.HttpClientErrorException
-import javax.persistence.EntityNotFoundException
 
 @RestControllerAdvice
 class ControllerExceptionHandler {
@@ -22,12 +19,12 @@ class ControllerExceptionHandler {
         return response(e)
     }
 
-    @ExceptionHandler(JpaObjectRetrievalFailureException::class, EntityNotFoundException::class)
+/*    @ExceptionHandler(*//*JpaObjectRetrievalFailureException::class,*//* EntityNotFoundException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleJpaBadRequest(e: Exception): Map<String, String> {
         log.warn(e.message, e)
         return response(e)
-    }
+    }*/
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -36,14 +33,14 @@ class ControllerExceptionHandler {
         log.error(e.message, e)
         return response(e, pageNotFound)
     }
-
+/*
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleExceptionAddingInSoldProperties(e: AddingInSoldPropertiesException): Map<String, String> {
         val addingFail = "Adding in sold properties failed"
         log.warn(e.message, e)
         return response(e, addingFail)
-    }
+    }*/
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

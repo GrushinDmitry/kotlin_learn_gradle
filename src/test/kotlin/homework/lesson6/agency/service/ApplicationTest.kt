@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import homework.lesson6.agency.model.AddSoldPropertyRequest
+import homework.lesson6.agency.model.AddingProcessRequest
 import homework.lesson6.agency.model.Property
+import homework.lesson6.agency.model.PropertyRequest
 import homework.lesson6.agency.service.client.PropertiesClient
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
@@ -77,7 +79,7 @@ class ApplicationTest(
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
         contentType = MediaType.APPLICATION_JSON
         content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-    }.readResponse<Int>()
+    }.readResponse<AddingProcessRequest>()
 
     fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
         mockMvc.post("/soldProperty/sold") {

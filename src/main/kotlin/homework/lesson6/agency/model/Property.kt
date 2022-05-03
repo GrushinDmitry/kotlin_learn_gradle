@@ -13,7 +13,10 @@ data class Property(
     val price: Int,
 )
 
-
+data class PropertyRequest(
+    val addingProcessRequest: AddingProcessRequest,
+    val property: Property? = null
+)
 
 
 
