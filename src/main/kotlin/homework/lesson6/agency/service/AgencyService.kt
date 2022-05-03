@@ -15,26 +15,28 @@ class AgencyService(
     private val propertiesClient: PropertiesClient,
     private val soldPropertiesDao: SoldPropertiesDao
 ) {
-    var numberRequest: Int = 0
-    val matchingIdWithNumber = mutableMapOf<Int, Int?>()
+    private var requestNumber: Int = 0
+    private val requestNumberToPropertyId = mutableMapOf<Int, Int?>()
 
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int {
-        matchingIdWithNumber[++numberRequest] = null
+        ++requestNumber
         CoroutineScope(Dispatchers.Default).launch {
             val id = addSoldPropertyRequest.id
             val property = propertiesClient.getProperty(id)
             property?.let {
                 withContext(Dispatchers.IO) {
-                    matchingIdWithNumber[numberRequest] = soldPropertiesDao.add(it)
+                    val fixedRequestNumber = requestNumber
+                    requestNumberToPropertyId[fixedRequestNumber] = soldPropertiesDao.add(it)
                 }
             }
         }
-        return numberRequest
+        return requestNumber
     }
 
     fun getSoldProperty(number: Int): Property {
-        if (number > numberRequest || number < 1) throw IllegalArgumentException("The request for number: $number not found")
-        val id = matchingIdWithNumber[number] ?: throw AddingInSoldPropertiesException("Adding in sold properties failed")
+        if (number > requestNumber || number < 1) throw IllegalArgumentException("The request for number: $number not found")
+        val id = requestNumberToPropertyId[number]
+            ?: throw AddingInSoldPropertiesException("Adding in sold properties failed")
         return soldPropertiesDao.get(id)!!
     }
 }

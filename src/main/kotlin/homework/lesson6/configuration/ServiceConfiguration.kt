@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.Connection
 import reactor.netty.http.client.HttpClient
 import java.util.concurrent.TimeUnit
 
@@ -18,9 +17,8 @@ class ServiceConfiguration(private val clientConfig: ClientConfig) {
     fun client(): HttpClient = HttpClient
         .create()
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.connectTimeoutInSeconds.toMillis().toInt())
-        .doOnConnected { conn: Connection ->
-            conn
-                .addHandler(ReadTimeoutHandler(clientConfig.readTimeoutInSeconds.seconds, TimeUnit.SECONDS))
+        .doOnConnected {
+            it.addHandler(ReadTimeoutHandler(clientConfig.readTimeoutInSeconds.seconds, TimeUnit.SECONDS))
         }
 
     @Bean

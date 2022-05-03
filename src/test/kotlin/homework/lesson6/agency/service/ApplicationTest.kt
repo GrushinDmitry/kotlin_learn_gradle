@@ -31,7 +31,7 @@ class ApplicationTest(
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
-    private var numberRequest = 0
+    private var requestNumber = 0
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
@@ -42,12 +42,12 @@ class ApplicationTest(
     init {
         feature("add and get property with coroutine") {
             scenario("http.status = ok after the time to add property") {
-                numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
+                requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
 
-                getMessageGetSoldProperty(numberRequest) shouldBe failAddingExpected
-                getStatusGetSoldProperty(numberRequest) shouldBe badRequestExpected
+                getMessageGetSoldProperty(requestNumber) shouldBe failAddingExpected
+                getStatusGetSoldProperty(requestNumber) shouldBe badRequestExpected
                 delay(200)
-                getStatusGetSoldProperty(numberRequest) shouldBe okRequestExpected
+                getStatusGetSoldProperty(requestNumber) shouldBe okRequestExpected
             }
             scenario("immediately reports data ok") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequestExpected
@@ -56,14 +56,14 @@ class ApplicationTest(
                 getStatusAddSoldProperty(AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)) shouldBe okRequestExpected
             }
             scenario("correct entity out after the time to add property") {
-                numberRequest = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))
+                requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id))
                 delay(200)
-                val idExpected = getSoldProperty(numberRequest).id
+                val idExpected = getSoldProperty(requestNumber).id
 
-                getSoldProperty(numberRequest) shouldBe getPropertyArkhangelskExpected(idExpected)
+                getSoldProperty(requestNumber) shouldBe getPropertyArkhangelskExpected(idExpected)
             }
             scenario("http.status = bad because unknown property") {
-                val incorrectNumberRequest = numberRequest + 1
+                val incorrectNumberRequest = requestNumber + 1
 
                 getMessageGetSoldProperty(incorrectNumberRequest) shouldBe getFailGettingExpected(incorrectNumberRequest)
                 getStatusGetSoldProperty(incorrectNumberRequest) shouldBe badRequestExpected
