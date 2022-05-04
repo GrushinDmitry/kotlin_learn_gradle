@@ -9,11 +9,7 @@ import javax.persistence.EntityNotFoundException
 @Primary
 private class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
 
-    override fun add(property: Property): Int? = try {
-        repository.saveAndFlush(property).id
-    } catch (e: Exception) {
-        null
-    }
+    override fun add(property: Property): Int = repository.saveAndFlush(property).id
 
     override fun get(id: Int): Property? = try {
         repository.getById(id)
