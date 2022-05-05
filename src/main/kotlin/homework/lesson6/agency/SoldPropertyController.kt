@@ -17,8 +17,17 @@ class SoldPropertyController(private val agencyService: AgencyService) {
     @GetMapping("/{id}")
     fun getSoldProperty(@PathVariable id: Int): Property = agencyService.getSoldProperty(id)
 
-    @GetMapping("/id-by-requestNumber")
-    @ResponseBody
+    @GetMapping("/find")
+    fun findSoldPropertyByPrice(
+        @RequestParam maxPrice: Int = 1000000,
+        @RequestParam pageNum: Int = 2,
+        @RequestParam pageSize: Int = 2,
+    ): List<Property> = agencyService.findSoldPropertiesByMaxPrice(maxPrice, pageNum, pageSize)
+
+    @DeleteMapping("/{id}")
+    fun deleteSoldPropertyById(@PathVariable id: Int): Property = agencyService.deleteSoldPropertyById(id)
+
+    @GetMapping("/request-number")
     fun getIdByRequestNumber(@RequestParam requestNumber: Int): AddPropertyAndGetIdResponse =
         agencyService.getIdByRequestNumber(requestNumber)
 }

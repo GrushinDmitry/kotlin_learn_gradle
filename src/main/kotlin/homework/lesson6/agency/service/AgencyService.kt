@@ -16,39 +16,48 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class AgencyService(
-    private val propertiesClient: PropertiesClient,
-    private val soldPropertiesDao: SoldPropertiesDao
+    private val propertiesClient: PropertiesClient, private val soldPropertiesDao: SoldPropertiesDao
 ) {
     private var requestNumber = AtomicInteger(0)
     private val requestNumberToPropertyId = ConcurrentHashMap<Int, AddPropertyAndGetIdResponse>()
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): AddPropertyAndGetIdResponse {
-        requestNumberToPropertyId[requestNumber.incrementAndGet()] =
-            AddPropertyAndGetIdResponse(requestNumber.get())
-        CoroutineScope(Dispatchers.Default).launch {
-            val fixedRequestNumber = requestNumber.get()
-            when (val property = propertiesClient.getProperty(addSoldPropertyRequest.id)) {
-                null -> requestNumberToPropertyId[fixedRequestNumber] =
-                    AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
-                else -> {
-                    withContext(Dispatchers.IO) {
-                        val fixedRequestNumber = requestNumber.get()
-                        requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
-                            fixedRequestNumber, Status.DONE,
-                            soldPropertiesDao.add(property)
-                        )
-                    }
-                }
-            }
-        }
-        return requestNumberToPropertyId[requestNumber.get()]!!
+    fun findSoldPropertiesByMaxPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> {
+        require(maxPrice > 0 && pageNum > 0 && pageSize > 0) { "The arguments must be positive" }
+        return soldPropertiesDao.find(maxPrice, pageNum, pageSize)
     }
 
-    fun getSoldProperty(id: Int): Property =
-        soldPropertiesDao.get(id) ?: throw IllegalArgumentException("The property with id: $id not found")
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): AddPropertyAndGetIdResponse {
+        val fixedRequestNumber = requestNumber.incrementAndGet()
+        requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(fixedRequestNumber)
+        CoroutineScope(Dispatchers.Default).launch {
+            getRequest(addSoldPropertyRequest, fixedRequestNumber)
+        }
+        return requestNumberToPropertyId.getValue(requestNumber.get())
+    }
 
-    fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse {
-        if (number > requestNumber.get() || number < 1) throw IllegalArgumentException("The request for number: $number not found")
-        return requestNumberToPropertyId[number]!!
+    fun deleteSoldPropertyById(id: Int): Property = soldPropertiesDao.deleteById(id) ?: propertyNotFound(id)
+
+    fun getSoldProperty(id: Int): Property = soldPropertiesDao.get(id) ?: propertyNotFound(id)
+
+    private fun propertyNotFound(id: Int): Nothing =
+        throw IllegalArgumentException("The property with id: $id not found")
+
+    fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse =
+        requestNumberToPropertyId[number] ?: throw IllegalArgumentException("The request for number: $number not found")
+
+    private suspend fun getRequest(addSoldPropertyRequest: AddSoldPropertyRequest, fixedRequestNumber: Int) {
+        val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
+        if (property == null) {
+            requestNumberToPropertyId[fixedRequestNumber] =
+                AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
+        } else getRequestNotNullProperty(fixedRequestNumber, property)
+    }
+
+    private suspend fun getRequestNotNullProperty(fixedRequestNumber: Int, property: Property) {
+        withContext(Dispatchers.IO) {
+            requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
+                fixedRequestNumber, Status.DONE, soldPropertiesDao.add(property)
+            )
+        }
     }
 }

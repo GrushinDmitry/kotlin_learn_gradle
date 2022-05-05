@@ -53,7 +53,7 @@ class ApplicationTest(
                 requestStatus shouldBe Status.PROCESSING
                 delay(200)
                 val getIdRequest = getIdByRequestNumber(requestNumber)
-                val propertyId = getIdRequest.propertyId!!
+                val propertyId = getIdRequest.propertyId ?: -1
                 getIdRequest.status shouldBe Status.DONE
                 getSoldProperty(propertyId) shouldBe getPropertyLeningradExpected(propertyId)
             }
@@ -61,7 +61,7 @@ class ApplicationTest(
                 getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequestExpected
             }
             scenario("http.status = ok, status adding property = error in the absence of property") {
-                val addingNotFoundSoldProperty = AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)
+                val addingNotFoundSoldProperty = AddSoldPropertyRequest(properties.maxOf { it.id } + 1)
                 val addPropertyRequest = addSoldProperty(addingNotFoundSoldProperty)
                 val requestStatus = addPropertyRequest.status
                 requestNumber = addPropertyRequest.requestNumber
@@ -107,7 +107,7 @@ class ApplicationTest(
     ).andReturn().response.status
 
     fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse =
-        mockMvc.get("/soldProperty/id-by-requestNumber?requestNumber=$number").readResponse()
+        mockMvc.get("/soldProperty/request-number?requestNumber=$number").readResponse()
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }

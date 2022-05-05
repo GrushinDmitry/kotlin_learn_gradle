@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 @Configuration
 class ServiceConfiguration(private val clientConfig: ClientConfig) {
 
-    @Bean
+
     fun client(): HttpClient = HttpClient
         .create()
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.connectTimeoutInSeconds.toMillis().toInt())
