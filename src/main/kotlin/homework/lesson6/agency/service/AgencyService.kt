@@ -1,6 +1,9 @@
 package homework.lesson6.agency.service
 
-import homework.lesson6.agency.model.*
+import homework.lesson6.agency.model.AddPropertyAndGetIdResponse
+import homework.lesson6.agency.model.AddSoldPropertyRequest
+import homework.lesson6.agency.model.Property
+import homework.lesson6.agency.model.Status
 import homework.lesson6.agency.service.client.PropertiesClient
 import homework.lesson6.agency.service.repo.SoldPropertiesDao
 import kotlinx.coroutines.CoroutineScope
@@ -13,51 +16,39 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class AgencyService(
-    private val propertiesClient: PropertiesClient, private val soldPropertiesDao: SoldPropertiesDao
+    private val propertiesClient: PropertiesClient,
+    private val soldPropertiesDao: SoldPropertiesDao
 ) {
     private var requestNumber = AtomicInteger(0)
-    private val requestNumberToPropertyId = ConcurrentHashMap<Int, AddingProcess>()
+    private val requestNumberToPropertyId = ConcurrentHashMap<Int, AddPropertyAndGetIdResponse>()
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): AddingProcessRequest {
+    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): AddPropertyAndGetIdResponse {
         requestNumberToPropertyId[requestNumber.incrementAndGet()] =
-            AddingProcess(null, AddingProcessRequest(requestNumber.get()))
+            AddPropertyAndGetIdResponse(requestNumber.get())
         CoroutineScope(Dispatchers.Default).launch {
             val fixedRequestNumber = requestNumber.get()
             when (val property = propertiesClient.getProperty(addSoldPropertyRequest.id)) {
                 null -> requestNumberToPropertyId[fixedRequestNumber] =
-                    AddingProcess(null, AddingProcessRequest(fixedRequestNumber, Status.ERROR))
+                    AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
                 else -> {
                     withContext(Dispatchers.IO) {
                         val fixedRequestNumber = requestNumber.get()
-                        requestNumberToPropertyId[fixedRequestNumber] = AddingProcess(
-                            soldPropertiesDao.add(property),
-                            AddingProcessRequest(fixedRequestNumber, Status.DONE)
+                        requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
+                            fixedRequestNumber, Status.DONE,
+                            soldPropertiesDao.add(property)
                         )
                     }
                 }
             }
         }
-        return requestNumberToPropertyId[requestNumber.get()]!!.addingProcessRequest
+        return requestNumberToPropertyId[requestNumber.get()]!!
     }
 
-    fun getSoldProperty(number: Int): PropertyRequest {
+    fun getSoldProperty(id: Int): Property =
+        soldPropertiesDao.get(id) ?: throw IllegalArgumentException("The property with id: $id not found")
+
+    fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse {
         if (number > requestNumber.get() || number < 1) throw IllegalArgumentException("The request for number: $number not found")
-        return getPropertyRequest(number)
-    }
-
-    fun getPropertyRequest(number: Int): PropertyRequest {
-        val addingProcessRequest = requestNumberToPropertyId[number]!!.addingProcessRequest
-        return when (addingProcessRequest.status) {
-            Status.DONE -> {
-                val id = requestNumberToPropertyId[number]!!.id!!
-                PropertyRequest(
-                    addingProcessRequest, soldPropertiesDao.get(id)
-                )
-            }
-            else -> PropertyRequest(addingProcessRequest, null)
-        }
+        return requestNumberToPropertyId[number]!!
     }
 }
-
-
-

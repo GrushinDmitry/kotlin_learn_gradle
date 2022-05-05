@@ -3,7 +3,10 @@ package homework.lesson6.agency.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
-import homework.lesson6.agency.model.*
+import homework.lesson6.agency.model.AddPropertyAndGetIdResponse
+import homework.lesson6.agency.model.AddSoldPropertyRequest
+import homework.lesson6.agency.model.Property
+import homework.lesson6.agency.model.Status
 import homework.lesson6.agency.service.client.PropertiesClient
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
@@ -39,41 +42,39 @@ class ApplicationTest(
     }
 
     init {
-        feature("add and get property with coroutine") {
+        feature("add and getPropertyById property with coroutine") {
             scenario("status = done and property added after the time") {
-                val addingProcessRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
+                val addPropertyRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
                 addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id))
                 addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id))
-                val requestStatus = addingProcessRequest.status
-                requestNumber = addingProcessRequest.requestNumber
+                val requestStatus = addPropertyRequest.status
+                requestNumber = addPropertyRequest.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
-                getStatusGetSoldProperty(requestNumber) shouldBe okRequestExpected
                 delay(200)
-                val gettingSoldProperty = getSoldProperty(requestNumber)
-                val idExpected = gettingSoldProperty.property!!.id
-                gettingSoldProperty.addingProcessRequest.status shouldBe Status.DONE
-                gettingSoldProperty.property shouldBe getPropertyLeningradExpected(idExpected)
+                val getIdRequest = getIdByRequestNumber(requestNumber)
+                val propertyId = getIdRequest.propertyId!!
+                getIdRequest.status shouldBe Status.DONE
+                getSoldProperty(propertyId) shouldBe getPropertyLeningradExpected(propertyId)
             }
             scenario("immediately reports data ok") {
                 getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequestExpected
             }
             scenario("http.status = ok, status adding property = error in the absence of property") {
                 val addingNotFoundSoldProperty = AddSoldPropertyRequest(properties.maxByOrNull { it.id }!!.id + 1)
-                val addingProcessRequest = addSoldProperty(addingNotFoundSoldProperty)
-                val requestStatus = addingProcessRequest.status
-                requestNumber = addingProcessRequest.requestNumber
+                val addPropertyRequest = addSoldProperty(addingNotFoundSoldProperty)
+                val requestStatus = addPropertyRequest.status
+                requestNumber = addPropertyRequest.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
-                getSoldProperty(requestNumber).addingProcessRequest.status shouldBe Status.ERROR
-                getStatusAddSoldProperty(addingNotFoundSoldProperty) shouldBe okRequestExpected
+                getIdByRequestNumber(requestNumber).status shouldBe Status.ERROR
             }
             scenario("correct entity out after the time to add property") {
                 requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).requestNumber
                 delay(200)
-                val idExpected = getSoldProperty(requestNumber).property!!.id
+                val propertyId = getIdByRequestNumber(requestNumber).propertyId!!
 
-                getSoldProperty(requestNumber).property shouldBe getPropertyArkhangelskExpected(idExpected)
+                getSoldProperty(propertyId) shouldBe getPropertyArkhangelskExpected(propertyId)
             }
             scenario("http.status = bad because unknown property") {
                 val incorrectNumberRequestMax = requestNumber + 1
@@ -91,7 +92,7 @@ class ApplicationTest(
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
         contentType = MediaType.APPLICATION_JSON
         content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-    }.readResponse<AddingProcessRequest>()
+    }.readResponse<AddPropertyAndGetIdResponse>()
 
     fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
         mockMvc.post("/soldProperty/sold") {
@@ -99,11 +100,14 @@ class ApplicationTest(
             content = objectMapper.writeValueAsString(addSoldPropertyRequest)
         }.andReturn().response.status
 
-    fun getSoldProperty(id: Int): PropertyRequest = mockMvc.get("/soldProperty/{id}", id).readResponse()
+    fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
 
     fun getStatusGetSoldProperty(id: Int): Int = mockMvc.get(
         "/soldProperty/{id}", id
     ).andReturn().response.status
+
+    fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse =
+        mockMvc.get("/soldProperty/id-by-requestNumber?requestNumber=$number").readResponse()
 
     private inline fun <reified T> ResultActionsDsl.readResponse(expectedStatus: HttpStatus = HttpStatus.OK): T =
         this.andExpect { status { isEqualTo(expectedStatus.value()) } }
@@ -137,14 +141,7 @@ class ApplicationTest(
         id, propertyArkhangelsk.address, propertyArkhangelsk.area, propertyArkhangelsk.price
     )
 
-    fun getPropertySmolenskExpected(id: Int) = Property(
-        id, propertySmolensk.address, propertySmolensk.area, propertySmolensk.price
-    )
-
-    fun getFailGettingExpected(number: Int) = "The request for number: $number not found"
-
     val badRequestExpected: Int = HttpStatus.BAD_REQUEST.value()
     private val okRequestExpected: Int = HttpStatus.OK.value()
-
 }
 
