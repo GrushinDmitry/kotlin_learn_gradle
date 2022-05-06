@@ -56,7 +56,7 @@ class AgencyService(
     private suspend fun saveProperty(fixedRequestNumber: Int, property: Property) {
         withContext(Dispatchers.IO) {
             requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
-                fixedRequestNumber, Status.DONE, soldPropertiesDao.add(property)
+                fixedRequestNumber, Status.DONE, soldPropertiesDao.add(property).id
             )
         }
     }
