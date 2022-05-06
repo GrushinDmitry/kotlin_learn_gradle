@@ -2,8 +2,6 @@ package homework.lesson6.configuration
 
 import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutHandler
-import org.springframework.beans.factory.getBean
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -23,6 +21,6 @@ class ServiceConfiguration(private val clientConfig: ClientConfig) {
         }
 
     @Bean
-    fun webClient(getContext: ApplicationContext): WebClient =
-        WebClient.builder().clientConnector(ReactorClientHttpConnector(getContext.getBean())).build()
+    fun webClient(httpClient: HttpClient): WebClient =
+        WebClient.builder().clientConnector(ReactorClientHttpConnector(httpClient)).build()
 }

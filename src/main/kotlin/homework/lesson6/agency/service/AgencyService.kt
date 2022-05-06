@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class AgencyService(
-    private val propertiesClient: PropertiesClient, private val soldPropertiesDao: SoldPropertiesDao
+    private val propertiesClient: PropertiesClient,
+    private val soldPropertiesDao: SoldPropertiesDao
 ) {
     private val requestNumber = AtomicInteger(0)
     private val requestNumberToPropertyId = ConcurrentHashMap<Int, AddPropertyAndGetIdResponse>()
@@ -49,15 +50,16 @@ class AgencyService(
             if (property == null) {
                 requestNumberToPropertyId[fixedRequestNumber] =
                     AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
-            } else saveProperty(fixedRequestNumber, property)
+            } else withContext(Dispatchers.IO) {
+                val soldProperty = soldPropertiesDao.add(property)
+                saveNotNullPropertyRequest(fixedRequestNumber, soldProperty)
+            }
         }
     }
 
-    private suspend fun saveProperty(fixedRequestNumber: Int, property: Property) {
-        withContext(Dispatchers.IO) {
-            requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
-                fixedRequestNumber, Status.DONE, soldPropertiesDao.add(property).id
-            )
-        }
+    private fun saveNotNullPropertyRequest(fixedRequestNumber: Int, soldProperty: Property) {
+        requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
+            fixedRequestNumber, Status.DONE, soldPropertiesDao.add(soldProperty).id
+        )
     }
 }

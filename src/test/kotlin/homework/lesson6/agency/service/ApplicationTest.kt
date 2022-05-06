@@ -13,6 +13,7 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.delay
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -44,33 +45,34 @@ class ApplicationTest(
     init {
         feature("add and getPropertyById property with coroutine") {
             scenario("status = done and property added after the time") {
-                val addPropertyRequest = addSoldProperty(AddSoldPropertyRequest(propertyLeningrad.id))
-                addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id))
-                addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id))
-                val requestStatus = addPropertyRequest.status
-                val requestNumber = addPropertyRequest.requestNumber
+                val addPropertyResponse = addSoldProperty(propertyLeningrad.id)
+                addSoldProperty(propertySmolensk.id)
+                addSoldProperty(propertyChelyabinsk.id)
+                val requestStatus = addPropertyResponse.status
+                val requestNumber = addPropertyResponse.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
                 delay(200)
-                val getIdRequest = getIdByRequestNumber(requestNumber)
-                val propertyId = getIdRequest.propertyId ?: -1
-                getIdRequest.status shouldBe Status.DONE
-                getSoldProperty(propertyId) shouldBe getPropertyLeningradExpected(propertyId)
+                val getIdResponse = getIdByRequestNumber(requestNumber)
+                val propertyId = getIdResponse.propertyId
+                propertyId shouldNotBe null
+                getIdResponse.status shouldBe Status.DONE
+                propertyId?.let { getSoldProperty(it) shouldBe getPropertyLeningradExpected(it) }
             }
             scenario("immediately reports data ok") {
-                getStatusAddSoldProperty(AddSoldPropertyRequest(propertySmolensk.id)) shouldBe okRequestExpected
+                getStatusAddSoldProperty(propertySmolensk.id) shouldBe okRequestExpected
             }
             scenario("http.status = ok, status adding property = error in the absence of property") {
-                val addingNotFoundSoldProperty = AddSoldPropertyRequest(properties.maxOf { it.id } + 1)
-                val addPropertyRequest = addSoldProperty(addingNotFoundSoldProperty)
-                val requestStatus = addPropertyRequest.status
-                val requestNumber = addPropertyRequest.requestNumber
+                val notFoundSoldPropertyId = properties.maxOf { it.id } + 1
+                val addPropertyResponse = addSoldProperty(notFoundSoldPropertyId)
+                val requestStatus = addPropertyResponse.status
+                val requestNumber = addPropertyResponse.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
                 getIdByRequestNumber(requestNumber).status shouldBe Status.ERROR
             }
             scenario("correct entity out after the time to add property") {
-                val requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).requestNumber
+                val requestNumber = addSoldProperty(propertyArkhangelsk.id).requestNumber
                 delay(200)
                 val propertyId = getIdByRequestNumber(requestNumber).propertyId!!
 
@@ -87,15 +89,16 @@ class ApplicationTest(
         }
     }
 
-    fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest) = mockMvc.post("/soldProperty/sold") {
-        contentType = MediaType.APPLICATION_JSON
-        content = objectMapper.writeValueAsString(addSoldPropertyRequest)
-    }.readResponse<AddPropertyAndGetIdResponse>()
-
-    fun getStatusAddSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): Int =
+    fun addSoldProperty(id: Int): AddPropertyAndGetIdResponse =
         mockMvc.post("/soldProperty/sold") {
             contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(addSoldPropertyRequest)
+            content = objectMapper.writeValueAsString(AddSoldPropertyRequest(id))
+        }.readResponse()
+
+    fun getStatusAddSoldProperty(id: Int): Int =
+        mockMvc.post("/soldProperty/sold") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(AddSoldPropertyRequest(id))
         }.andReturn().response.status
 
     fun getSoldProperty(id: Int): Property = mockMvc.get("/soldProperty/{id}", id).readResponse()
@@ -131,15 +134,15 @@ class ApplicationTest(
     private val properties =
         setOf(propertyTula, propertyChelyabinsk, propertySmolensk, propertyArkhangelsk, propertyLeningrad)
 
-    fun getPropertyLeningradExpected(id: Int) = Property(
+    private fun getPropertyLeningradExpected(id: Int) = Property(
         id, propertyLeningrad.address, propertyLeningrad.area, propertyLeningrad.price
     )
 
-    fun getPropertyArkhangelskExpected(id: Int) = Property(
+    private fun getPropertyArkhangelskExpected(id: Int) = Property(
         id, propertyArkhangelsk.address, propertyArkhangelsk.area, propertyArkhangelsk.price
     )
 
-    val badRequestExpected: Int = HttpStatus.BAD_REQUEST.value()
+    private val badRequestExpected: Int = HttpStatus.BAD_REQUEST.value()
     private val okRequestExpected: Int = HttpStatus.OK.value()
 }
 
