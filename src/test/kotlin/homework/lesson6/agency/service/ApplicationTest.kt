@@ -33,7 +33,7 @@ class ApplicationTest(
 
     @MockkBean
     private lateinit var propertiesClient: PropertiesClient
-    private var requestNumber = 0
+
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
@@ -48,7 +48,7 @@ class ApplicationTest(
                 addSoldProperty(AddSoldPropertyRequest(propertySmolensk.id))
                 addSoldProperty(AddSoldPropertyRequest(propertyChelyabinsk.id))
                 val requestStatus = addPropertyRequest.status
-                requestNumber = addPropertyRequest.requestNumber
+                val requestNumber = addPropertyRequest.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
                 delay(200)
@@ -64,24 +64,22 @@ class ApplicationTest(
                 val addingNotFoundSoldProperty = AddSoldPropertyRequest(properties.maxOf { it.id } + 1)
                 val addPropertyRequest = addSoldProperty(addingNotFoundSoldProperty)
                 val requestStatus = addPropertyRequest.status
-                requestNumber = addPropertyRequest.requestNumber
+                val requestNumber = addPropertyRequest.requestNumber
 
                 requestStatus shouldBe Status.PROCESSING
                 getIdByRequestNumber(requestNumber).status shouldBe Status.ERROR
             }
             scenario("correct entity out after the time to add property") {
-                requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).requestNumber
+                val requestNumber = addSoldProperty(AddSoldPropertyRequest(propertyArkhangelsk.id)).requestNumber
                 delay(200)
                 val propertyId = getIdByRequestNumber(requestNumber).propertyId!!
 
                 getSoldProperty(propertyId) shouldBe getPropertyArkhangelskExpected(propertyId)
             }
             scenario("http.status = bad because unknown property") {
-                val incorrectNumberRequestMax = requestNumber + 1
-                val incorrectNumberRequestMin = 0
+                val incorrectNumberRequest = 0
 
-                getStatusGetSoldProperty(incorrectNumberRequestMax) shouldBe badRequestExpected
-                getStatusGetSoldProperty(incorrectNumberRequestMin) shouldBe badRequestExpected
+                getStatusGetSoldProperty(incorrectNumberRequest) shouldBe badRequestExpected
             }
             scenario("http.status = ok for getting first number") {
                 getStatusGetSoldProperty(1) shouldBe okRequestExpected

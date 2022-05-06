@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class AgencyService(
     private val propertiesClient: PropertiesClient, private val soldPropertiesDao: SoldPropertiesDao
 ) {
-    private var requestNumber = AtomicInteger(0)
+    private val requestNumber = AtomicInteger(0)
     private val requestNumberToPropertyId = ConcurrentHashMap<Int, AddPropertyAndGetIdResponse>()
 
     fun findSoldPropertiesByMaxPrice(maxPrice: Int, pageNum: Int, pageSize: Int): List<Property> {
@@ -29,10 +29,8 @@ class AgencyService(
     fun addSoldProperty(addSoldPropertyRequest: AddSoldPropertyRequest): AddPropertyAndGetIdResponse {
         val fixedRequestNumber = requestNumber.incrementAndGet()
         requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(fixedRequestNumber)
-        CoroutineScope(Dispatchers.Default).launch {
-            getRequest(addSoldPropertyRequest, fixedRequestNumber)
-        }
-        return requestNumberToPropertyId.getValue(requestNumber.get())
+        getAndSaveProperty(addSoldPropertyRequest, fixedRequestNumber)
+        return requestNumberToPropertyId.getValue(fixedRequestNumber)
     }
 
     fun deleteSoldPropertyById(id: Int): Property = soldPropertiesDao.deleteById(id) ?: propertyNotFound(id)
@@ -45,15 +43,17 @@ class AgencyService(
     fun getIdByRequestNumber(number: Int): AddPropertyAndGetIdResponse =
         requestNumberToPropertyId[number] ?: throw IllegalArgumentException("The request for number: $number not found")
 
-    private suspend fun getRequest(addSoldPropertyRequest: AddSoldPropertyRequest, fixedRequestNumber: Int) {
-        val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
-        if (property == null) {
-            requestNumberToPropertyId[fixedRequestNumber] =
-                AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
-        } else getRequestNotNullProperty(fixedRequestNumber, property)
+    private fun getAndSaveProperty(addSoldPropertyRequest: AddSoldPropertyRequest, fixedRequestNumber: Int) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val property = propertiesClient.getProperty(addSoldPropertyRequest.id)
+            if (property == null) {
+                requestNumberToPropertyId[fixedRequestNumber] =
+                    AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
+            } else saveProperty(fixedRequestNumber, property)
+        }
     }
 
-    private suspend fun getRequestNotNullProperty(fixedRequestNumber: Int, property: Property) {
+    private suspend fun saveProperty(fixedRequestNumber: Int, property: Property) {
         withContext(Dispatchers.IO) {
             requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
                 fixedRequestNumber, Status.DONE, soldPropertiesDao.add(property)
