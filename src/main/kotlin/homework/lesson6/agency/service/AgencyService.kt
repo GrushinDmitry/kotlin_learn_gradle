@@ -52,14 +52,9 @@ class AgencyService(
                     AddPropertyAndGetIdResponse(fixedRequestNumber, Status.ERROR)
             } else withContext(Dispatchers.IO) {
                 val soldProperty = soldPropertiesDao.add(property)
-                saveNotNullPropertyRequest(fixedRequestNumber, soldProperty)
+                requestNumberToPropertyId[fixedRequestNumber] =
+                    AddPropertyAndGetIdResponse(fixedRequestNumber, Status.DONE, soldProperty.id)
             }
         }
-    }
-
-    private fun saveNotNullPropertyRequest(fixedRequestNumber: Int, soldProperty: Property) {
-        requestNumberToPropertyId[fixedRequestNumber] = AddPropertyAndGetIdResponse(
-            fixedRequestNumber, Status.DONE, soldPropertiesDao.add(soldProperty).id
-        )
     }
 }

@@ -57,7 +57,7 @@ class ApplicationTest(
                 val propertyId = getIdResponse.propertyId
                 propertyId shouldNotBe null
                 getIdResponse.status shouldBe Status.DONE
-                propertyId?.let { getSoldProperty(it) shouldBe getPropertyLeningradExpected(it) }
+                getSoldProperty(propertyId!!) shouldBe getPropertyLeningradExpected(propertyId)
             }
             scenario("immediately reports data ok") {
                 getStatusAddSoldProperty(propertySmolensk.id) shouldBe okRequestExpected

@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit
 
 
 @Configuration
-class ServiceConfiguration(private val clientConfig: ClientConfig) {
+class ServiceConfiguration() {
 
     @Bean
-    fun client(): HttpClient = HttpClient.create()
+    fun client(clientConfig: ClientConfig): HttpClient = HttpClient.create()
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.connectTimeoutInSeconds.toMillis().toInt())
         .doOnConnected {
             it.addHandler(ReadTimeoutHandler(clientConfig.readTimeoutInSeconds.seconds, TimeUnit.SECONDS))
