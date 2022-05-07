@@ -12,8 +12,8 @@ import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.core.test.TestCase
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.delay
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -45,37 +45,37 @@ class ApplicationTest(
     init {
         feature("add and getPropertyById property with coroutine") {
             scenario("status = done and property added after the time") {
-                val addPropertyResponse = addSoldProperty(propertyLeningrad.id)
+                val originalResponse = addSoldProperty(propertyLeningrad.id)
                 addSoldProperty(propertySmolensk.id)
                 addSoldProperty(propertyChelyabinsk.id)
-                val requestStatus = addPropertyResponse.status
-                val requestNumber = addPropertyResponse.requestNumber
 
-                requestStatus shouldBe Status.PROCESSING
                 delay(200)
-                val getIdResponse = getIdByRequestNumber(requestNumber)
-                val propertyId = getIdResponse.propertyId
-                propertyId shouldNotBe null
-                getIdResponse.status shouldBe Status.DONE
-                getSoldProperty(propertyId!!) shouldBe getPropertyLeningradExpected(propertyId)
+                val finalResponse = getIdByRequestNumber(originalResponse.requestNumber)
+                val propertyId = finalResponse.propertyId
+
+                originalResponse.status shouldBe statusProcessing
+                propertyId.shouldNotBeNull()
+                finalResponse.status shouldBe statusDone
+                getSoldProperty(propertyId) shouldBe getPropertyLeningradExpected(propertyId)
             }
             scenario("immediately reports data ok") {
                 getStatusAddSoldProperty(propertySmolensk.id) shouldBe okRequestExpected
             }
             scenario("http.status = ok, status adding property = error in the absence of property") {
                 val notFoundSoldPropertyId = properties.maxOf { it.id } + 1
-                val addPropertyResponse = addSoldProperty(notFoundSoldPropertyId)
-                val requestStatus = addPropertyResponse.status
-                val requestNumber = addPropertyResponse.requestNumber
+                val originalResponse = addSoldProperty(notFoundSoldPropertyId)
+                val finalResponse = getIdByRequestNumber(originalResponse.requestNumber)
 
-                requestStatus shouldBe Status.PROCESSING
-                getIdByRequestNumber(requestNumber).status shouldBe Status.ERROR
+                originalResponse.status shouldBe statusProcessing
+                finalResponse.status shouldBe statusError
             }
             scenario("correct entity out after the time to add property") {
                 val requestNumber = addSoldProperty(propertyArkhangelsk.id).requestNumber
-                delay(200)
-                val propertyId = getIdByRequestNumber(requestNumber).propertyId!!
 
+                delay(200)
+                val propertyId = getIdByRequestNumber(requestNumber).propertyId
+
+                propertyId.shouldNotBeNull()
                 getSoldProperty(propertyId) shouldBe getPropertyArkhangelskExpected(propertyId)
             }
             scenario("http.status = bad because unknown property") {
@@ -84,7 +84,9 @@ class ApplicationTest(
                 getStatusGetSoldProperty(incorrectNumberRequest) shouldBe badRequestExpected
             }
             scenario("http.status = ok for getting first number") {
-                getStatusGetSoldProperty(1) shouldBe okRequestExpected
+                val firstNumberRequest = 1
+
+                getStatusGetSoldProperty(firstNumberRequest) shouldBe okRequestExpected
             }
         }
     }
@@ -144,5 +146,8 @@ class ApplicationTest(
 
     private val badRequestExpected: Int = HttpStatus.BAD_REQUEST.value()
     private val okRequestExpected: Int = HttpStatus.OK.value()
+    private val statusProcessing = Status.PROCESSING
+    private val statusError = Status.ERROR
+    private val statusDone = Status.DONE
 }
 
