@@ -1,5 +1,6 @@
 package homework.lesson6.agency
 
+import homework.lesson6.agency.model.AddPropertyAndGetIdResponse
 import homework.lesson6.agency.model.AddSoldPropertyRequest
 import homework.lesson6.agency.model.Property
 import homework.lesson6.agency.service.AgencyService
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class SoldPropertyController(private val agencyService: AgencyService) {
 
     @PostMapping("/sold")
-    fun addSoldProperty(@RequestBody addSoldPropertyRequest: AddSoldPropertyRequest): Property =
+    fun addSoldProperty(@RequestBody addSoldPropertyRequest: AddSoldPropertyRequest): AddPropertyAndGetIdResponse =
         agencyService.addSoldProperty(addSoldPropertyRequest)
 
     @GetMapping("/{id}")
@@ -25,4 +26,8 @@ class SoldPropertyController(private val agencyService: AgencyService) {
 
     @DeleteMapping("/{id}")
     fun deleteSoldPropertyById(@PathVariable id: Int): Property = agencyService.deleteSoldPropertyById(id)
+
+    @GetMapping("/request-number")
+    fun getIdByRequestNumber(@RequestParam requestNumber: Int): AddPropertyAndGetIdResponse =
+        agencyService.getIdByRequestNumber(requestNumber)
 }

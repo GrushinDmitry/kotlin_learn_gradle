@@ -25,6 +25,8 @@ dependencies {
     implementation("org.liquibase:liquibase-core:4.9.0")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.0")

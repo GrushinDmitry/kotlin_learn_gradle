@@ -1,13 +1,13 @@
 package homework.lesson6.agency.service.repo
 
 import homework.lesson6.agency.model.Property
-import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.Primary
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("jpa")
+@Primary
 private class JpaDao(private val repository: JpaSoldPropertiesRepository) : SoldPropertiesDao {
 
     override fun add(property: Property): Property = repository.saveAndFlush(property)

@@ -3,20 +3,19 @@ package homework.lesson6.agency.service.client
 import homework.lesson6.agency.model.Property
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException.NotFound
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForObject
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Service
 class PropertiesClient(
-    private val restTemplate: RestTemplate,
+    private val webClient: WebClient,
     @Value("\${properties.address}") private val propertiesAddress: String
 ) {
-    fun getProperty(id: Int): Property? = try {
-        restTemplate.getForObject("$propertiesAddress$PROPERTY_BY_ID", id)
-    } catch (e: NotFound) {
-        null
-    }
+    suspend fun getProperty(id: Int): Property? =
+        webClient.get()
+            .uri("$propertiesAddress$PROPERTY_BY_ID", id)
+            .retrieve()
+            .awaitBodyOrNull()
 }
 
 private const val PROPERTY_BY_ID = "/soldProperty?identification={id}"
